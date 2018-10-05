@@ -30,6 +30,30 @@ sellingPorcentage <- function(dataInfo) {
 # P1 - Número de processos judiciais sofridos pela empresa
 # Pegar da tabela processos.xl, e padronizar por ano
 
+p1 <- function (dataInfo) {
+  # todo, method to get all companies code
+  companyVector = vector();
+  processVector = vector();
+  yearVector = vector();
+  yearCounter <- 0;
+  for (yearInfo in dataInfo) {
+    yearCounter <- yearCounter + 1;
+    j = length(companyVector);
+    year = names(dataInfo)[yearCounter];
+    
+    for (i in 1:length(yearInfo[[1]])) {
+      companyVector[j + i] <- yearInfo[[i, 1]];
+      processVector[j + i] <- yearInfo[[i, 2]];
+      yearVector[j + i] <- year;
+    }
+  }
+  
+  resultFrame = data.frame("Compania" = companyVector, "Número Processos" = processVector, "Ano" = yearVector);
+  
+  View(resultFrame)
+  return (dataInfo);
+}
+
 # Planilha 2 - Porcentagem em renda variável na remuneração dos executivos 
 variableIncomePercentage <- function () {
   # get all variables. in history.compensation and divide to total.value.remunaration
