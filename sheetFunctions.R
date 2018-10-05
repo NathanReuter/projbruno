@@ -64,8 +64,8 @@ p1 <- function (dataInfo) {
   resultFrame = data.frame(
     "Codigo" = codeVector, 
     "Compania" = companyVector, "Número Processos" = processVector, "Ano" = yearVector);
-  View(codeVector);
   View(resultFrame)
+  
   return (dataInfo);
 }
 
@@ -118,6 +118,34 @@ sellingPorcentageResultaData <-sellingPorcentage(df.statements)
 # p10 Logaritmo natural do total de ativos de uma empresa
 # Pegar a planilha Bruno.xls
 # Color no formato codigo, nome, e pegar o valor de total de ativos e aplica Ln em todos os anos(COlunas)
+p10 <- function(dataInfo) {
+  codeVector = vector();
+  companyVector = vector();
+  activeValueVector = vector();
+  yearVector = vector();
+  yearCounter <- 2009;
+  j <- 0;
+  for (colSheet in  brunoSheet[5: length(brunoSheet)]) {
+    j = j + length(companyVector)
+    yearCounter = yearCounter + 1;
+    i = 0;
+    k = 3
+    for (activeValue in colSheet[k + 1: length(colSheet)]) {
+      i = i + 1;
+      cName = unlist(brunoSheet[k + i, 2]);
+      aValue = as.numeric(unlist(activeValue));
+      codeVector[i + j] = getCompanyCode(cName);
+      companyVector[i + j] = cName;
+      yearVector[i + j] = yearCounter;
+      activeValueVector[i + j] = log(aValue);
+    }
+  }
+  
+  resultFrame = data.frame("Código" = codeVector, "Compania" = companyVector, "Ano" = yearVector, 'Valor Ativo' = activeValueVector);
+  View(resultFrame)
+  
+  return (resultFrame)
+}
 
 # p11 Dummy 1 - Novo Mercado ou Nível 2; 0 - Caso contrário
 # history.gorvernance.listings

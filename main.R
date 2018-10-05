@@ -22,3 +22,4 @@ df.statements <- gdfpd.GetDFPData(name.companies = name.companies,first.date = f
 
 planilha1 <- p1(processSheet);
 
+planilha10 <- p10(brunoSheet);
