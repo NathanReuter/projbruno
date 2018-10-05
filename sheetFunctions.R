@@ -27,29 +27,44 @@ sellingPorcentage <- function(dataInfo) {
   return (resultFrame)
 }
 
+getCompanyCode <- function(name) {
+  code = unlist((filter(df.statements, company.name == name)[2]));
+  if (length(code) == 0L) {
+    return (666);
+  }
+  
+  return (code);
+}
+
 # P1 - Número de processos judiciais sofridos pela empresa
 # Pegar da tabela processos.xl, e padronizar por ano
 
 p1 <- function (dataInfo) {
   # todo, method to get all companies code
+  codeVector = vector();
   companyVector = vector();
   processVector = vector();
   yearVector = vector();
   yearCounter <- 0;
+  
   for (yearInfo in dataInfo) {
     yearCounter <- yearCounter + 1;
     j = length(companyVector);
     year = names(dataInfo)[yearCounter];
     
     for (i in 1:length(yearInfo[[1]])) {
-      companyVector[j + i] <- yearInfo[[i, 1]];
+      company = yearInfo[[i, 1]];
+      codeVector[j + i] = getCompanyCode(company)[1];
+      companyVector[j + i] <- company;
       processVector[j + i] <- yearInfo[[i, 2]];
       yearVector[j + i] <- year;
     }
   }
   
-  resultFrame = data.frame("Compania" = companyVector, "Número Processos" = processVector, "Ano" = yearVector);
-  
+  resultFrame = data.frame(
+    "Codigo" = codeVector, 
+    "Compania" = companyVector, "Número Processos" = processVector, "Ano" = yearVector);
+  View(codeVector);
   View(resultFrame)
   return (dataInfo);
 }
