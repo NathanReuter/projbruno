@@ -15,11 +15,11 @@ allCompanies = gdfpd.get.info.companies(type.data = "companies")[[1]];
 # Test info to get ONE companie info
 # This will be change to iterate through allCompanies List
 #name.companies <- 'ELETROPAULO METROPOLITANA EL.S.PAULO S.A';
-name.companies <- allCompanies[1:10];
+name.companies <- allCompanies[1:100];
 first.date <- '2010-01-01';
 last.date <- '2017-01-01';
 df.statements <- gdfpd.GetDFPData(name.companies = name.companies,first.date = first.date);
 
-planilha1 <- p1(processSheet);
+#planilha1 <- p1(processSheet);
 
-planilha10 <- p10(brunoSheet);
+#planilha10 <- p10(brunoSheet);
