@@ -70,12 +70,84 @@ p1 <- function (dataInfo) {
 }
 
 # Planilha 2 - Porcentagem em renda variável na remuneração dos executivos 
-variableIncomePercentage <- function (dataInfo) {
+# AKA variableIncomePercentage
+p2 <- function (dataInfo) {
   # get all variables. in history.compensation and divide to total.value.remunaration
   # And divid it in 3 columns Management Council, Statutory Directors, Fiscal Council
   # COLOCAR Data como apenas o Ano
-  hComp = df.statements['history.compensation'];
-  hComp = hComp[[1]];
+  yearVector = vector();
+  CompanyVector = vector();
+  CodeVector = vector();
+  MCVector = vector();
+  SDVector = vector();
+  FCVector = vector();
+  
+  by(dataInfo, 1:nrow(dataInfo), function(company) {
+    hComp = company['history.compensation'];
+    hComp = hComp$history.compensation[[1]];
+    
+    
+    if (length(hComp) > 0) {
+      localYearVector  = vector();
+      localCompany = vector();
+      localCode = vector();
+      localMC = vector();
+      localSD = vector();
+      localFC = vector();
+      cName = hComp[[1, 1]];
+      calculateValue <- function(index) {
+        varibleSum = hComp$variable.bonus[index] + hComp$variable.results.participation[index] 
+        + hComp$variable.meetings.participation[index] + hComp$variable.others[index] + hComp$variable.results.participation[index];
+        result = (varibleSum / hComp$total.value.remuneration[index]) * 100;
+        if (is.nan(result)) {
+          return (0)
+        }
+        
+        return (round(result, 2));
+      }
+      
+      for (index in seq_along(hComp$ref.date)) {
+        parsedYear = unlist(strsplit(toString(hComp$ref.date[index]), "-"))[1];
+        if (!(parsedYear %in% localYearVector)) {
+          localYearVector <- c(localYearVector, parsedYear);
+          localCompany <- c(localCompany, cName);
+          localCode <- c(localCode, getCompanyCode(cName));
+        }
+        
+        type = hComp$level.remuneration[index];
+        value = calculateValue(index);
+        switch (type,
+                "Management Council" = localMC <- c(localMC, value),
+                "Statutory Directors" = localSD <- c(localSD, value),
+                "Fiscal Council" = localFC <- c(localFC, value)
+        );
+      }
+      
+      resultList = normalizedRowNumbers(list(localMC, localSD, localFC), 0);
+      localMC <- resultList[[1]];
+      localSD <- resultList[[2]];
+      localFC <- resultList[[3]];
+      yearVector <<- c(yearVector, localYearVector);
+      CompanyVector <<- c(CompanyVector, localCompany);
+      CodeVector <<- c(CodeVector, localCode);
+      MCVector <<- c(MCVector, localMC);
+      SDVector <<- c(SDVector, localSD);
+      FCVector <<- c(FCVector, localFC);
+    }
+  });
+  
+  resultList = normalizedRowNumbers(list(MCVector, SDVector, FCVector), length(CodeVector));
+  
+  resultFrame = data.frame(
+    "Codigo" = CodeVector, 
+    "Compania" = CompanyVector, 
+    "Ano" = yearVector,
+    "Management Council" = resultList[[1]], 
+    "Statutory Directors" = resultList[[2]], 
+    "Fiscal Council" = resultList[[3]]
+  );
+  
+  return(resultFrame);
 }
 
 # P3 - Porcentagem de conselheiros independentes

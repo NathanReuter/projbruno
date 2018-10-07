@@ -19,3 +19,22 @@ read_excel_allsheets <- function(filename, tibble = FALSE) {
   x
 }
 
+normalizedRowNumbers <- function(vectorList, size) {
+  index =  which.max(lapply(vectorList, length));
+  if (size == 0) {
+    maxCol = length(vectorList[[index]]);
+  } else {
+    maxCol = size;
+  }
+  
+  returnList = vector("list", length(vectorList));
+  i = 0
+  
+  for (vec in vectorList) {
+    i <- i + 1;
+    returnList[[i]] <- c(vec, double(maxCol - length(vec)));
+  }
+  
+  return (returnList);
+}
+
