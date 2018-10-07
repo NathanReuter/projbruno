@@ -70,12 +70,12 @@ p1 <- function (dataInfo) {
 }
 
 # Planilha 2 - Porcentagem em renda variável na remuneração dos executivos 
-variableIncomePercentage <- function () {
+variableIncomePercentage <- function (dataInfo) {
   # get all variables. in history.compensation and divide to total.value.remunaration
   # And divid it in 3 columns Management Council, Statutory Directors, Fiscal Council
   # COLOCAR Data como apenas o Ano
-  #hComp = df.statements['history.compensation'];
-  #hComp = hComp[[1]];
+  hComp = df.statements['history.compensation'];
+  hComp = hComp[[1]];
 }
 
 # P3 - Porcentagem de conselheiros independentes
