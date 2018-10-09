@@ -151,11 +151,63 @@ p2 <- function (dataInfo) {
 }
 
 # P3 - Porcentagem de conselheiros independentes
-independentConselorPercentage <- function() {
+p3 <- function(dataInfo) {
   # Get code.type  == 27 in history.board.composition and divide by all ocurrences in the year
+  yearVector = vector();
+  CompanyVector = vector();
+  CodeVector = vector();
+  MandateVector = vector();
+  
+  by(dataInfo, 1:nrow(dataInfo), function(company) {
+    hBoardComposition = company['history.board.composition'];
+    hBoardComposition = hBoardComposition$history.board.composition[[1]];
+    
+    if (!is.null(hBoardComposition)) {
+      hBoardComposition = filter(hBoardComposition, code.type.job == 27)
+      
+      if (nrow(hBoardComposition) > 0) {
+        localYearVector  = vector();
+        localCompany = vector();
+        localCode = vector();
+        cName = hBoardComposition[[1, 1]];
+        localMandatesVector = vector();
+        auxmandatesVector = vector();
+        for (index in seq_along(hBoardComposition$ref.date)) {
+          parsedYear = unlist(strsplit(toString(hBoardComposition$ref.date[index]), "-"))[1];
+          
+          if (!(parsedYear %in% localYearVector)) {
+            localYearVector <- c(localYearVector, parsedYear);
+            localCompany <- c(localCompany, cName);
+            localCode <- c(localCode, getCompanyCode(cName));
+            localMandatesVector <- c(localMandatesVector, mean(auxmandatesVector));
+            auxmandatesVector <- vector();
+          }
+          mandates = hBoardComposition$qtd.consecutive.mandates[index];
+          if (!is.na(mandates)) {
+            auxmandatesVector <- c(auxmandatesVector, mandates)
+          }
+        }
+        
+        yearVector <<- c(yearVector, localYearVector);
+        CompanyVector <<- c(CompanyVector, localCompany);
+        CodeVector <<- c(CodeVector, localCode);
+        MandateVector <<- c(MandateVector, localMandatesVector);
+      }
+    }
+    
+  });
+  
+  resultFrame = data.frame(
+    "Codigo" = CodeVector, 
+    "Compania" = CompanyVector, 
+    "Ano" = yearVector,
+    "Porcentagem Conselheiros" = MandateVector
+  );
+  
+  return (resultFrame);
 }
 
-sellingPorcentageResultaData <-sellingPorcentage(df.statements)
+#sellingPorcentageResultaData <-sellingPorcentage(df.statements)
 # This writes into csv
 #write.csv(sellingPorcentageResultaData, file = "./Planilha 1.csv")
 
