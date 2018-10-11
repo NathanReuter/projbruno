@@ -38,3 +38,9 @@ normalizedRowNumbers <- function(vectorList, size) {
   return (returnList);
 }
 
+parseDate <- function(DateString) {
+  parsedYear = unlist(strsplit(toString(DateString), "-"))[1];
+  
+  return (parsedYear);
+}
+

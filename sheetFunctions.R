@@ -280,7 +280,59 @@ p5 <- function(dataInfo) {
 # Vasculhar history responsable e pegar os person.name com person.job == "Diretor Presidente"
 # Depois usar o person.name e em history.stockholders, verificar se person.name == name.stockholder
 # e captura o perc.ord.shares
-
+p5 <- function(dataInfo) {
+  yearVector = vector();
+  CompanyVector = vector();
+  CodeVector = vector();
+  AverageRemunaration = vector();
+  
+  by(dataInfo, 1:nrow(dataInfo), function(company) {
+    hComp = company['history.compensation'];
+    hComp = hComp$history.compensation[[1]];
+    
+    
+    if (length(hComp) > 0) {
+      localYearVector  = vector();
+      localCompany = vector();
+      localCode = vector();
+      localAR = vector();
+      localAuxAR = vector();
+      cName = hComp[[1, 1]];
+      
+      
+      for (index in seq_along(hComp$ref.date)) {
+        parsedYear = unlist(strsplit(toString(hComp$ref.date[index]), "-"))[1];
+        if (!(parsedYear %in% localYearVector)) {
+          if (index != 1) {
+            localAR <- c(localAR, sum(localAuxAR));
+            localAuxAR <- vector();  
+          }
+          localYearVector <- c(localYearVector, parsedYear);
+          localCompany <- c(localCompany, cName);
+          localCode <- c(localCode, getCompanyCode(cName));
+          
+        }
+        average = hComp$total.value.remuneration[index]/ hComp$qtd.members[index];
+        localAuxAR <- c(localAuxAR, average);
+      }
+      
+      localAR <- c(localAR, sum(localAuxAR));
+      yearVector <<- c(yearVector, localYearVector);
+      CompanyVector <<- c(CompanyVector, localCompany);
+      CodeVector <<- c(CodeVector, localCode);
+      AverageRemunaration <<- c(AverageRemunaration, localAR);
+    }
+  });
+  
+  resultFrame = data.frame(
+    "Codigo" = CodeVector,
+    "Compania" = CompanyVector,
+    "Ano" = yearVector,
+    "Remuneração Média" = AverageRemunaration
+  );
+  View(resultFrame)
+  return(resultFrame);
+}
 # p8 Dummy 1 - CEO presidente do conselho; 0 - Caso contrário
 # Varrer history.board.composition, e para cada ano se tiver cõdigo 30 dummy = 1 se nao 0
 

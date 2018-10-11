@@ -14,7 +14,7 @@ processSheet = processSheet[7: length(processSheet)-1];
 allCompanies = gdfpd.get.info.companies(type.data = "companies")[[1]];
 # Test info to get ONE companie info
 # This will be change to iterate through allCompanies List
-name.companies <- allCompanies[1:10];
+name.companies <- allCompanies[10:50];
 first.date <- '2010-01-01';
 last.date <- '2017-01-01';
 df.statements <- gdfpd.GetDFPData(name.companies = name.companies,first.date = first.date);
@@ -27,61 +27,61 @@ df.statements <- gdfpd.GetDFPData(name.companies = name.companies,first.date = f
 
 #planilha10 <- p10(brunoSheet);
 
+#planilha 5 <- p5(df.statements);
 
-# p5 Remuneração Média (RM)
-# pegar no history.compensation e dividir total.value / qtd.members
-p5 <- function(dataInfo) {
+# p7 Nível percentual de ações em posse dos executivos
+# Vasculhar history responsable e pegar os person.name com person.job == "Diretor Presidente"
+# Depois usar o person.name e em history.stockholders, verificar se person.name == name.stockholder
+# e captura o perc.ord.shares
+p7 <- function(dataInfo) {
   yearVector = vector();
   CompanyVector = vector();
   CodeVector = vector();
-  AverageRemunaration = vector();
+  DirectorVector = vector();
+  OrderShareVector = vector();
   
   by(dataInfo, 1:nrow(dataInfo), function(company) {
-    hComp = company['history.compensation'];
-    hComp = hComp$history.compensation[[1]];
+    hResp = company['history.responsible.docs']$history.responsible.docs[[1]];
+    hResp = filter(hResp, person.job == "Diretor Presidente");
+    hStockHolders = company$history.stockholders[[1]];
     
-    
-    if (length(hComp) > 0) {
+    if (nrow(hResp) > 0 && nrow(hStockHolders) > 0 ) {
       localYearVector  = vector();
       localCompany = vector();
       localCode = vector();
-      localAR = vector();
-      localAuxAR = vector();
-      cName = hComp[[1, 1]];
-
+      localDirector = vector();
+      localOrderShare = vector();
+      cName = hResp[[1, 1]];
       
-      for (index in seq_along(hComp$ref.date)) {
-        parsedYear = unlist(strsplit(toString(hComp$ref.date[index]), "-"))[1];
-        if (!(parsedYear %in% localYearVector)) {
-          if (index != 1) {
-            localAR <- c(localAR, sum(localAuxAR));
-            localAuxAR <- vector();  
-          }
-          localYearVector <- c(localYearVector, parsedYear);
+      for (name in hResp$person.name) {
+        result = filter(hStockHolders, name.stockholder == name);
+        #TODO CHECK FOR MORE DE UM RESULT AND CHECK FOR NULL BEFORE FILTER
+        if (nrow(result) > 0) {
+          localDirector <- c(localDirector, name);
+          localYearVector <- c(localYearVector, parseDate(result$ref.date));
           localCompany <- c(localCompany, cName);
+          localOrderShare <- c(localOrderShare, result$perc.ord.shares);
           localCode <- c(localCode, getCompanyCode(cName));
-          
         }
-        average = hComp$total.value.remuneration[index]/ hComp$qtd.members[index];
-        localAuxAR <- c(localAuxAR, average);
       }
       
-      localAR <- c(localAR, sum(localAuxAR));
       yearVector <<- c(yearVector, localYearVector);
       CompanyVector <<- c(CompanyVector, localCompany);
       CodeVector <<- c(CodeVector, localCode);
-      AverageRemunaration <<- c(AverageRemunaration, localAR);
+      DirectorVector <<- c(DirectorVector, localDirector);
+      OrderShareVector <<- c(OrderShareVector, localOrderShare);
     }
   });
-
+  
   resultFrame = data.frame(
     "Codigo" = CodeVector,
     "Compania" = CompanyVector,
     "Ano" = yearVector,
-    "Remuneração Média" = AverageRemunaration
+    "Diretor" = DirectorVector,
+    "Percentual de Ações" = OrderShareVector
   );
   View(resultFrame)
   return(resultFrame);
 }
 
-p5(df.statements)
+p7(df.statements)
