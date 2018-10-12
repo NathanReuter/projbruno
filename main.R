@@ -42,35 +42,41 @@ p7 <- function(dataInfo) {
   
   by(dataInfo, 1:nrow(dataInfo), function(company) {
     hResp = company['history.responsible.docs']$history.responsible.docs[[1]];
-    hResp = filter(hResp, person.job == "Diretor Presidente");
-    hStockHolders = company$history.stockholders[[1]];
-    
-    if (nrow(hResp) > 0 && nrow(hStockHolders) > 0 ) {
-      localYearVector  = vector();
-      localCompany = vector();
-      localCode = vector();
-      localDirector = vector();
-      localOrderShare = vector();
-      cName = hResp[[1, 1]];
+    if (!is.null(hResp)) {
+      hResp = filter(hResp, person.job == "Diretor Presidente");
+      hStockHolders = company$history.stockholders[[1]];
       
-      for (name in hResp$person.name) {
-        result = filter(hStockHolders, name.stockholder == name);
-        #TODO CHECK FOR MORE DE UM RESULT AND CHECK FOR NULL BEFORE FILTER
-        if (nrow(result) > 0) {
-          localDirector <- c(localDirector, name);
-          localYearVector <- c(localYearVector, parseDate(result$ref.date));
-          localCompany <- c(localCompany, cName);
-          localOrderShare <- c(localOrderShare, result$perc.ord.shares);
-          localCode <- c(localCode, getCompanyCode(cName));
+      if (nrow(hResp) > 0 && nrow(hStockHolders) > 0 ) {
+        localYearVector  = vector();
+        localCompany = vector();
+        localCode = vector();
+        localDirector = vector();
+        localOrderShare = vector();
+        cName = hResp[[1, 1]];
+        
+        for (name in hResp$person.name) {
+          result = filter(hStockHolders, name.stockholder == name);
+          #TODO CHECK FOR MORE DE UM RESULT AND CHECK FOR NULL BEFORE FILTER
+          if (nrow(result) > 0) {
+            for (index in 1:nrow(result)) {
+              localDirector <- c(localDirector, name);
+              localYearVector <- c(localYearVector, parseDate(result$ref.date[index]));
+              localCompany <- c(localCompany, cName);
+              localOrderShare <- c(localOrderShare, result$perc.ord.shares[index]);
+              localCode <- c(localCode, getCompanyCode(cName));  
+            }
+          }
         }
+        
+        yearVector <<- c(yearVector, localYearVector);
+        CompanyVector <<- c(CompanyVector, localCompany);
+        CodeVector <<- c(CodeVector, localCode);
+        DirectorVector <<- c(DirectorVector, localDirector);
+        OrderShareVector <<- c(OrderShareVector, localOrderShare);
       }
-      
-      yearVector <<- c(yearVector, localYearVector);
-      CompanyVector <<- c(CompanyVector, localCompany);
-      CodeVector <<- c(CodeVector, localCode);
-      DirectorVector <<- c(DirectorVector, localDirector);
-      OrderShareVector <<- c(OrderShareVector, localOrderShare);
     }
+    
+    
   });
   
   resultFrame = data.frame(

@@ -1,31 +1,4 @@
 # Exemple to fetch information from the info dataframe and rebuild into a dataframe again
-sellingPorcentage <- function(dataInfo) {
-  #codigo da empresa, nome da empresa, ano, porcentage de renda variavel
-  
-  companyCode = dataInfo$company.code;
-  companyName = dataInfo$company.name;
-  
-  # This will vary from list
-  companyYear = list();
-  variableIncomeList = dataInfo$fr.income;
-  currentDate = list();
-  valor = list();
-  companyNameList = list();
-  companyCodeList = list();
-  
-  for(collumn in variableIncomeList){
-    currentDate = collumn[2];
-    valor = collumn[5]
-  }
-  
-  companyNameList[1: nrow(currentDate)] = companyName;
-  companyCodeList[1: nrow(currentDate)] = companyCode;
-  
-  resultFrame = data.frame(listToROW(companyCodeList), listToROW(companyNameList), currentDate, valor);
-  colnames(resultFrame) <- c("Código", "Empresa", "Ano", "Renda")
-  
-  return (resultFrame)
-}
 
 getCompanyCode <- function(name) {
   code = unlist((filter(df.statements, company.name == name)[2]));
@@ -174,7 +147,7 @@ p3 <- function(dataInfo) {
         localMandatesVector = vector();
         auxmandatesVector = vector();
         for (index in seq_along(hBoardComposition$ref.date)) {
-          parsedYear = unlist(strsplit(toString(hBoardComposition$ref.date[index]), "-"))[1];
+          parsedYear = parseDate(hComp$ref.date[index]);
           
           if (!(parsedYear %in% localYearVector)) {
             localYearVector <- c(localYearVector, parsedYear);
@@ -240,7 +213,7 @@ p5 <- function(dataInfo) {
       
       
       for (index in seq_along(hComp$ref.date)) {
-        parsedYear = unlist(strsplit(toString(hComp$ref.date[index]), "-"))[1];
+        parsedYear = parseDate(hComp$ref.date[index]);
         if (!(parsedYear %in% localYearVector)) {
           if (index != 1) {
             localAR <- c(localAR, sum(localAuxAR));
@@ -301,7 +274,7 @@ p5 <- function(dataInfo) {
       
       
       for (index in seq_along(hComp$ref.date)) {
-        parsedYear = unlist(strsplit(toString(hComp$ref.date[index]), "-"))[1];
+        parsedYear = parseDate(hComp$ref.date[index]);
         if (!(parsedYear %in% localYearVector)) {
           if (index != 1) {
             localAR <- c(localAR, sum(localAuxAR));
@@ -331,6 +304,67 @@ p5 <- function(dataInfo) {
     "Remuneração Média" = AverageRemunaration
   );
   View(resultFrame)
+  return(resultFrame);
+}
+
+# p7 Nível percentual de ações em posse dos executivos
+# Vasculhar history responsable e pegar os person.name com person.job == "Diretor Presidente"
+# Depois usar o person.name e em history.stockholders, verificar se person.name == name.stockholder
+# e captura o perc.ord.shares
+p7 <- function(dataInfo) {
+  yearVector = vector();
+  CompanyVector = vector();
+  CodeVector = vector();
+  DirectorVector = vector();
+  OrderShareVector = vector();
+  
+  by(dataInfo, 1:nrow(dataInfo), function(company) {
+    hResp = company['history.responsible.docs']$history.responsible.docs[[1]];
+    if (!is.null(hResp)) {
+      hResp = filter(hResp, person.job == "Diretor Presidente");
+      hStockHolders = company$history.stockholders[[1]];
+      
+      if (nrow(hResp) > 0 && nrow(hStockHolders) > 0 ) {
+        localYearVector  = vector();
+        localCompany = vector();
+        localCode = vector();
+        localDirector = vector();
+        localOrderShare = vector();
+        cName = hResp[[1, 1]];
+        
+        for (name in hResp$person.name) {
+          result = filter(hStockHolders, name.stockholder == name);
+          #TODO CHECK FOR MORE DE UM RESULT AND CHECK FOR NULL BEFORE FILTER
+          if (nrow(result) > 0) {
+            for (index in 1:nrow(result)) {
+              localDirector <- c(localDirector, name);
+              localYearVector <- c(localYearVector, parseDate(result$ref.date[index]));
+              localCompany <- c(localCompany, cName);
+              localOrderShare <- c(localOrderShare, result$perc.ord.shares[index]);
+              localCode <- c(localCode, getCompanyCode(cName));  
+            }
+          }
+        }
+        
+        yearVector <<- c(yearVector, localYearVector);
+        CompanyVector <<- c(CompanyVector, localCompany);
+        CodeVector <<- c(CodeVector, localCode);
+        DirectorVector <<- c(DirectorVector, localDirector);
+        OrderShareVector <<- c(OrderShareVector, localOrderShare);
+      }
+    }
+    
+    
+  });
+  
+  resultFrame = data.frame(
+    "Codigo" = CodeVector,
+    "Compania" = CompanyVector,
+    "Ano" = yearVector,
+    "Diretor" = DirectorVector,
+    "Percentual de Ações" = OrderShareVector
+  );
+  
   return(resultFrame);
 }
 # p8 Dummy 1 - CEO presidente do conselho; 0 - Caso contrário
