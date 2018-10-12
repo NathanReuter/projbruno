@@ -14,7 +14,7 @@ processSheet = processSheet[7: length(processSheet)-1];
 allCompanies = gdfpd.get.info.companies(type.data = "companies")[[1]];
 # Test info to get ONE companie info
 # This will be change to iterate through allCompanies List
-name.companies <- allCompanies[10:50];
+name.companies <- allCompanies[1:50];
 first.date <- '2010-01-01';
 last.date <- '2017-01-01';
 df.statements <- gdfpd.GetDFPData(name.companies = name.companies,first.date = first.date);
@@ -27,67 +27,63 @@ df.statements <- gdfpd.GetDFPData(name.companies = name.companies,first.date = f
 
 #planilha10 <- p10(brunoSheet);
 
-#planilha 5 <- p5(df.statements);
+#planilha5 <- p5(df.statements);
 
-# p7 Nível percentual de ações em posse dos executivos
-# Vasculhar history responsable e pegar os person.name com person.job == "Diretor Presidente"
-# Depois usar o person.name e em history.stockholders, verificar se person.name == name.stockholder
-# e captura o perc.ord.shares
-p7 <- function(dataInfo) {
+#planilha <- p7(df.statements);
+
+#planilha8 <- p8(df.statements);
+# p11 Dummy 1 - Novo Mercado ou Nível 2; 0 - Caso contrário
+# history.gorvernance.listings
+# listed.segment = "Novo Mercado" || "Nivel 2"
+# Lista por ano e empresa
+p11 <- function(dataInfo) {
   yearVector = vector();
   CompanyVector = vector();
   CodeVector = vector();
-  DirectorVector = vector();
-  OrderShareVector = vector();
+  DummyVector = vector();
+  searchTarget = c("Novo Mercado", "Nivel 2");
   
   by(dataInfo, 1:nrow(dataInfo), function(company) {
-    hResp = company['history.responsible.docs']$history.responsible.docs[[1]];
-    if (!is.null(hResp)) {
-      hResp = filter(hResp, person.job == "Diretor Presidente");
-      hStockHolders = company$history.stockholders[[1]];
+    hGL = company$history.governance.listings[[1]];
+    
+    if (!is.null(hGL) && nrow(hGL) > 0) {
+      localYearVector  = vector();
+      localCompany = vector();
+      localCode = vector();
+      localDummyVector = vector();
+      cName = hGL[[1, 1]];
       
-      if (nrow(hResp) > 0 && nrow(hStockHolders) > 0 ) {
-        localYearVector  = vector();
-        localCompany = vector();
-        localCode = vector();
-        localDirector = vector();
-        localOrderShare = vector();
-        cName = hResp[[1, 1]];
+      for (index in seq_along(hGL$ref.date)) {
+        parsedYear = parseDate(hGL$ref.date[index])
         
-        for (name in hResp$person.name) {
-          result = filter(hStockHolders, name.stockholder == name);
-          #TODO CHECK FOR MORE DE UM RESULT AND CHECK FOR NULL BEFORE FILTER
+        if (!(parsedYear %in% localYearVector)) {
+          localYearVector <- c(localYearVector, parsedYear);
+          localCompany <- c(localCompany, cName);
+          localCode <- c(localCode, getCompanyCode(cName));
+          result = filter(hGL, ref.date == ref.date[index],listed.segment %in% searchTarget);
           if (nrow(result) > 0) {
-            for (index in 1:nrow(result)) {
-              localDirector <- c(localDirector, name);
-              localYearVector <- c(localYearVector, parseDate(result$ref.date[index]));
-              localCompany <- c(localCompany, cName);
-              localOrderShare <- c(localOrderShare, result$perc.ord.shares[index]);
-              localCode <- c(localCode, getCompanyCode(cName));  
-            }
+            localDummyVector <- c(localDummyVector, 1);
+          } else {
+            localDummyVector <- c(localDummyVector, 0);
           }
         }
-        
-        yearVector <<- c(yearVector, localYearVector);
-        CompanyVector <<- c(CompanyVector, localCompany);
-        CodeVector <<- c(CodeVector, localCode);
-        DirectorVector <<- c(DirectorVector, localDirector);
-        OrderShareVector <<- c(OrderShareVector, localOrderShare);
       }
+      
+      yearVector <<- c(yearVector, localYearVector);
+      CompanyVector <<- c(CompanyVector, localCompany);
+      CodeVector <<- c(CodeVector, localCode);
+      DummyVector <<- c(DummyVector, localDummyVector);
     }
-    
-    
   });
   
   resultFrame = data.frame(
-    "Codigo" = CodeVector,
-    "Compania" = CompanyVector,
+    "Código" = CodeVector,
+    "Companhia" = CompanyVector,
     "Ano" = yearVector,
-    "Diretor" = DirectorVector,
-    "Percentual de Ações" = OrderShareVector
+    "Dummy" = DummyVector
   );
-  View(resultFrame)
+  
   return(resultFrame);
 }
 
-p7(df.statements)
+p11(df.statements);

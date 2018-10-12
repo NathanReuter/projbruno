@@ -36,7 +36,7 @@ p1 <- function (dataInfo) {
   
   resultFrame = data.frame(
     "Codigo" = codeVector, 
-    "Compania" = companyVector, "Número Processos" = processVector, "Ano" = yearVector);
+    "Companhia" = companyVector, "Número Processos" = processVector, "Ano" = yearVector);
   View(resultFrame)
   
   return (dataInfo);
@@ -113,7 +113,7 @@ p2 <- function (dataInfo) {
   
   resultFrame = data.frame(
     "Codigo" = CodeVector, 
-    "Compania" = CompanyVector, 
+    "Companhia" = CompanyVector, 
     "Ano" = yearVector,
     "Management Council" = resultList[[1]], 
     "Statutory Directors" = resultList[[2]], 
@@ -173,7 +173,7 @@ p3 <- function(dataInfo) {
   
   resultFrame = data.frame(
     "Codigo" = CodeVector, 
-    "Compania" = CompanyVector, 
+    "Companhia" = CompanyVector, 
     "Ano" = yearVector,
     "Porcentagem Conselheiros" = MandateVector
   );
@@ -238,7 +238,7 @@ p5 <- function(dataInfo) {
   
   resultFrame = data.frame(
     "Codigo" = CodeVector,
-    "Compania" = CompanyVector,
+    "Companhia" = CompanyVector,
     "Ano" = yearVector,
     "Remuneração Média" = AverageRemunaration
   );
@@ -299,7 +299,7 @@ p5 <- function(dataInfo) {
   
   resultFrame = data.frame(
     "Codigo" = CodeVector,
-    "Compania" = CompanyVector,
+    "Companhia" = CompanyVector,
     "Ano" = yearVector,
     "Remuneração Média" = AverageRemunaration
   );
@@ -359,7 +359,7 @@ p7 <- function(dataInfo) {
   
   resultFrame = data.frame(
     "Codigo" = CodeVector,
-    "Compania" = CompanyVector,
+    "Companhia" = CompanyVector,
     "Ano" = yearVector,
     "Diretor" = DirectorVector,
     "Percentual de Ações" = OrderShareVector
@@ -369,7 +369,53 @@ p7 <- function(dataInfo) {
 }
 # p8 Dummy 1 - CEO presidente do conselho; 0 - Caso contrário
 # Varrer history.board.composition, e para cada ano se tiver cõdigo 30 dummy = 1 se nao 0
-
+p8 <- function(dataInfo) {
+  yearVector = vector();
+  CompanyVector = vector();
+  CodeVector = vector();
+  DummyVector = vector();
+  
+  by(dataInfo, 1:nrow(dataInfo), function(company) {
+    hBC = company$history.board.composition[[1]];
+    
+    if (!is.null(hBC) && nrow(hBC) > 0) {
+      localYearVector  = vector();
+      localCompany = vector();
+      localCode = vector();
+      localDummyVector = vector();
+      cName = hBC[[1, 1]];
+      
+      for (index in seq_along(hBC$ref.date)) {
+        parsedYear = parseDate(hBC$ref.date[index])
+        
+        if (!(parsedYear %in% localYearVector)) {
+          localYearVector <- c(localYearVector, parsedYear);
+          localCompany <- c(localCompany, cName);
+          localCode <- c(localCode, getCompanyCode(cName));
+          result = filter(hBC, ref.date == ref.date[index],code.type.job == 30);
+          if (nrow(result) > 0) {
+            localDummyVector <- c(localDummyVector, 1);
+          } else {
+            localDummyVector <- c(localDummyVector, 0);
+          }
+        }
+      }
+      
+      yearVector <<- c(yearVector, localYearVector);
+      CompanyVector <<- c(CompanyVector, localCompany);
+      CodeVector <<- c(CodeVector, localCode);
+      DummyVector <<- c(DummyVector, localDummyVector);
+    }
+  });
+  
+  resultFrame = data.frame(
+    "Código" = CodeVector,
+    "Companhia" = CompanyVector,
+    "Ano" = yearVector,
+    "Dummy" = DummyVector
+  );
+  return(resultFrame);
+}
 # p9 Tempo de mandato em anos do CEO na empresa
 # Olhar history.responsible , verificar todos os person.job = "Diretor Presidente"
 # Varrer os anos de 2010 e contar quantos anos de mandato 
@@ -405,7 +451,7 @@ p10 <- function(dataInfo) {
     }
   }
   
-  resultFrame = data.frame("Código" = codeVector, "Compania" = companyVector, "Ano" = yearVector, 'Valor Ativo' = activeValueVector);
+  resultFrame = data.frame("Código" = codeVector, "Companhia" = companyVector, "Ano" = yearVector, 'Valor Ativo' = activeValueVector);
   View(resultFrame)
   
   return (resultFrame)
