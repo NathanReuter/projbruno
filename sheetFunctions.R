@@ -72,6 +72,7 @@ p2 <- function (dataInfo) {
         varibleSum = hComp$variable.bonus[index] + hComp$variable.results.participation[index] 
         + hComp$variable.meetings.participation[index] + hComp$variable.others[index] + hComp$variable.results.participation[index];
         result = (varibleSum / hComp$total.value.remuneration[index]) * 100;
+        
         if (is.nan(result)) {
           return (0)
         }
@@ -80,7 +81,8 @@ p2 <- function (dataInfo) {
       }
       
       for (index in seq_along(hComp$ref.date)) {
-        parsedYear = unlist(strsplit(toString(hComp$ref.date[index]), "-"))[1];
+        parsedYear = parseDate(hComp$ref.date[index]);
+        
         if (!(parsedYear %in% localYearVector)) {
           localYearVector <- c(localYearVector, parsedYear);
           localCompany <- c(localCompany, cName);
