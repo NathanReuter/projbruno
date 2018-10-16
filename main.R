@@ -13,8 +13,10 @@ processSheet = processSheet[7: length(processSheet)-1];
 # Get all companies name, this will be use later
 allCompanies = gdfpd.get.info.companies(type.data = "companies")[[1]];
 # Test info to get ONE companie info
-# This will be change to iterate through allCompanies List
+problematicCompanies = c(239, 212, 197, 179);
 name.companies <- allCompanies[1:300];
+
+name.companies <- setdiff(name.companies, name.companies[problematicCompanies])
 first.date <- '2010-01-01';
 last.date <- '2017-01-01';
 df.statements <- gdfpd.GetDFPData(name.companies = name.companies,first.date = first.date);
