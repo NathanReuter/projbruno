@@ -1,10 +1,10 @@
-setwd("~/projects/projetoBruno/progFiles")
+setwd("~/projbruno")
 # Load local Scripts
 source("utils.R");
 source("sheetFunctions.R");
 # Load GetDFP library
-library("GetDFPData", lib.loc="~/R/x86_64-pc-linux-gnu-library/3.4");
-library("dplyr", lib.loc="~/R/x86_64-pc-linux-gnu-library/3.4")
+library("GetDFPData");
+library("dplyr")
 
 # Load needed csv
 brunoSheet = read_excel("resourceSheets/Bruno.xlsx");
@@ -14,7 +14,7 @@ processSheet = processSheet[7: length(processSheet)-1];
 allCompanies = gdfpd.get.info.companies(type.data = "companies")[[1]];
 # Test info to get ONE companie info
 # This will be change to iterate through allCompanies List
-name.companies <- allCompanies[1:50];
+name.companies <- allCompanies[1:300];
 first.date <- '2010-01-01';
 last.date <- '2017-01-01';
 df.statements <- gdfpd.GetDFPData(name.companies = name.companies,first.date = first.date);
