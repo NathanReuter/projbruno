@@ -463,6 +463,56 @@ p10 <- function(dataInfo) {
 # history.gorvernance.listings
 # listed.segment = "Novo Mercado" || "Nivel 2"
 # Lista por ano e empresa
+p11 <- function(dataInfo) {
+  yearVector = vector();
+  CompanyVector = vector();
+  CodeVector = vector();
+  DummyVector = vector();
+  searchTarget = c("Novo Mercado", "Nivel 2");
+  
+  by(dataInfo, 1:nrow(dataInfo), function(company) {
+    hGL = company$history.governance.listings[[1]];
+    
+    if (!is.null(hGL) && nrow(hGL) > 0) {
+      localYearVector  = vector();
+      localCompany = vector();
+      localCode = vector();
+      localDummyVector = vector();
+      cName = hGL[[1, 1]];
+      
+      for (index in seq_along(hGL$ref.date)) {
+        parsedYear = parseDate(hGL$ref.date[index])
+        
+        if (!(parsedYear %in% localYearVector)) {
+          localYearVector <- c(localYearVector, parsedYear);
+          localCompany <- c(localCompany, cName);
+          localCode <- c(localCode, getCompanyCode(cName));
+          result = filter(hGL, ref.date == ref.date[index],listed.segment %in% searchTarget);
+          if (nrow(result) > 0) {
+            localDummyVector <- c(localDummyVector, 1);
+          } else {
+            localDummyVector <- c(localDummyVector, 0);
+          }
+        }
+      }
+      
+      yearVector <<- c(yearVector, localYearVector);
+      CompanyVector <<- c(CompanyVector, localCompany);
+      CodeVector <<- c(CodeVector, localCode);
+      DummyVector <<- c(DummyVector, localDummyVector);
+    }
+  });
+  
+  resultFrame = data.frame(
+    "Código" = CodeVector,
+    "Companhia" = CompanyVector,
+    "Ano" = yearVector,
+    "Dummy" = DummyVector
+  );
+  
+  return(resultFrame);
+}
+
 
 # p12 Dummy 1 - Setor que será observado; 0 - Caso contrário 
 # Separa pela planilha bruno.xls código, nomeCOmpania e nomesetor
