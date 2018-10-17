@@ -13,10 +13,16 @@ processSheet = processSheet[7: length(processSheet)-1];
 # Get all companies name, this will be use later
 allCompanies = gdfpd.get.info.companies(type.data = "companies")[[1]];
 # Test info to get ONE companie info
-problematicCompanies = c(239, 212, 197, 179);
-name.companies <- allCompanies[1:300];
+problematicCompanies = c(239, 212, 197, 179, 161, 199, 205);
+problematicCompanies = c("COSAN SA INDUSTRIA E COMERCIO", "COMPANHIA PROVIDENCIA IND E COMERCIO", 
+"COBRASMA SA", "CIA ESTADUAL DE GERACAO E TRANSMISSAO DE ENERGIA ELETRICA", "CENTRO DE IMAGEM DIAGNÓSTICOS S.A.",
+"COMPANHIA BRASILEIRA DE DISTRIBUIÇÃO", "COMPANHIA DE SANEAMENTO DE MINAS GERAIS", "INDS J B DUARTE SA",
+"CONST SULTEPA SA - EM RECUPERAÇÃO JUDICIAL");
 
-name.companies <- setdiff(name.companies, name.companies[problematicCompanies])
+name.companies <- allCompanies[1:400];
+
+name.companies <- setdiff(name.companies, problematicCompanies)
+View(name.companies)
 first.date <- '2010-01-01';
 last.date <- '2017-01-01';
 df.statements <- gdfpd.GetDFPData(name.companies = name.companies,first.date = first.date);
