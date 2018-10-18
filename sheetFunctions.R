@@ -39,7 +39,7 @@ p1 <- function (dataInfo) {
     "Companhia" = companyVector, "Número Processos" = processVector, "Ano" = yearVector);
   View(resultFrame)
   
-  return (dataInfo);
+  return (resultFrame);
 }
 
 # Planilha 2 - Porcentagem em renda variável na remuneração dos executivos 
@@ -227,6 +227,9 @@ p5 <- function(dataInfo) {
           
         }
         average = hComp$total.value.remuneration[index]/ hComp$qtd.members[index];
+        if (is.nan(average)) {
+          average = 0;
+        }
         localAuxAR <- c(localAuxAR, average);
       }
       
@@ -250,63 +253,8 @@ p5 <- function(dataInfo) {
 
 # p6 Ranking da Remuneração Média (RRM)
 # Fazer Global, para todas as empresas e rankear entre 0-1 o as empresas de acrodo com a remuneração média
-
-# p7 Nível percentual de ações em posse dos executivos
-# Vasculhar history responsable e pegar os person.name com person.job == "Diretor Presidente"
-# Depois usar o person.name e em history.stockholders, verificar se person.name == name.stockholder
-# e captura o perc.ord.shares
-p5 <- function(dataInfo) {
-  yearVector = vector();
-  CompanyVector = vector();
-  CodeVector = vector();
-  AverageRemunaration = vector();
-  
-  by(dataInfo, 1:nrow(dataInfo), function(company) {
-    hComp = company['history.compensation'];
-    hComp = hComp$history.compensation[[1]];
-    
-    
-    if (length(hComp) > 0) {
-      localYearVector  = vector();
-      localCompany = vector();
-      localCode = vector();
-      localAR = vector();
-      localAuxAR = vector();
-      cName = hComp[[1, 1]];
-      
-      
-      for (index in seq_along(hComp$ref.date)) {
-        parsedYear = parseDate(hComp$ref.date[index]);
-        if (!(parsedYear %in% localYearVector)) {
-          if (index != 1) {
-            localAR <- c(localAR, sum(localAuxAR));
-            localAuxAR <- vector();  
-          }
-          localYearVector <- c(localYearVector, parsedYear);
-          localCompany <- c(localCompany, cName);
-          localCode <- c(localCode, getCompanyCode(cName));
-          
-        }
-        average = hComp$total.value.remuneration[index]/ hComp$qtd.members[index];
-        localAuxAR <- c(localAuxAR, average);
-      }
-      
-      localAR <- c(localAR, sum(localAuxAR));
-      yearVector <<- c(yearVector, localYearVector);
-      CompanyVector <<- c(CompanyVector, localCompany);
-      CodeVector <<- c(CodeVector, localCode);
-      AverageRemunaration <<- c(AverageRemunaration, localAR);
-    }
-  });
-  
-  resultFrame = data.frame(
-    "Codigo" = CodeVector,
-    "Companhia" = CompanyVector,
-    "Ano" = yearVector,
-    "Remuneração Média" = AverageRemunaration
-  );
-  View(resultFrame)
-  return(resultFrame);
+p6 <- function(p5) {
+  p5[order(p5)]
 }
 
 # p7 Nível percentual de ações em posse dos executivos
@@ -425,6 +373,67 @@ p8 <- function(dataInfo) {
 # 2012        ----                  1
 # 2011        Marcos Antonio Molina dos Santos    2
 # 2010        Marcos Antonio Molina dos Santos    2
+p9 <- function(dataInfo) {
+  yearVector = vector();
+  CompanyVector = vector();
+  CodeVector = vector();
+  DirectorVector = vector();
+  MandateTimeVector = vector();
+  
+  by(dataInfo, 1:nrow(dataInfo), function(company) {
+    hResp = company['history.responsible.docs']$history.responsible.docs[[1]];
+    if (!is.null(hResp)) {
+      hResp = filter(hResp, person.job %in% c("Diretor Presidente", "Diretor Presidente/Relações com Investidores"));
+      
+      if (nrow(hResp) > 0) {
+        localYearVector  = vector();
+        localCompany = vector();
+        localCode = vector();
+        localDirector = vector();
+        localMandateTime = vector();
+        cName = hResp[[1, 1]];
+        actualDirectorName = "";
+        yearsCounter = 0;
+        for (index in 1:nrow(hResp)) {
+          if (!is.null(hResp$person.name[index]) && !is.na(hResp$person.name[index])) {
+            if (actualDirectorName == "" || actualDirectorName == hResp$person.name[index]) {
+              yearsCounter = yearsCounter + 1;
+            } else {
+              localMandateTime <- c(localMandateTime, rep(c(yearsCounter), yearsCounter));
+              yearsCounter = 1;
+            }
+            
+            actualDirectorName = hResp$person.name[index];
+            localDirector <- c(localDirector, hResp$person.name[index]);
+            localYearVector <- c(localYearVector, parseDate(hResp$ref.date[index]));
+            localCompany <- c(localCompany, cName);
+            localMandateTime <- c(localMandateTime, hResp$perc.ord.shares[index]);
+            localCode <- c(localCode, getCompanyCode(cName));  
+          }
+        }
+        localMandateTime <- c(localMandateTime, rep(c(yearsCounter), yearsCounter));
+        yearVector <<- c(yearVector, localYearVector);
+        CompanyVector <<- c(CompanyVector, localCompany);
+        CodeVector <<- c(CodeVector, localCode);
+        DirectorVector <<- c(DirectorVector, localDirector);
+        MandateTimeVector <<- c(MandateTimeVector, localMandateTime);
+      }
+    }
+    
+    
+  });
+  
+  resultFrame = data.frame(
+    "Codigo" = CodeVector,
+    "Companhia" = CompanyVector,
+    "Ano" = yearVector,
+    "Diretor" = DirectorVector,
+    "Tempo de Mandato (Anos)" = MandateTimeVector
+  );
+  View(resultFrame);
+  
+  return(resultFrame);
+}
 
 
 # p10 Logaritmo natural do total de ativos de uma empresa

@@ -20,7 +20,7 @@ problematicCompanies = c("COSAN SA INDUSTRIA E COMERCIO", "COMPANHIA PROVIDENCIA
 "COMPANHIA BRASILEIRA DE DISTRIBUI??O", "COMPANHIA DE SANEAMENTO DE MINAS GERAIS", "INDS J B DUARTE SA",
 "CONST SULTEPA SA - EM RECUPERA??O JUDICIAL");
 
-name.companies <- allCompanies[200:300];
+name.companies <- allCompanies[1:100];
 
 name.companies <- setdiff(name.companies, problematicCompanies)
 first.date <- '2010-01-01';
@@ -29,88 +29,46 @@ df.statements <- gdfpd.GetDFPData(name.companies = name.companies,first.date = f
 
 #planilha1 <- p1(processSheet);
 
-# planilha2 <- p2(df.statements);
+#planilha2 <- p2(df.statements);
 
 # planilha3 = p3(df.statements)
 
-#planilha5 <- p5(df.statements);2
+planilha5 <- p5(df.statements);
 
 #planilha7 <- p7(df.statements);
 
 #planilha8 <- p8(df.statements);
 
-# p9 Tempo de mandato em anos do CEO na empresa
-# Olhar history.responsible , verificar todos os person.job = "Diretor Presidente"
-# Varrer os anos de 2010 e contar quantos anos de mandato 
-# Ano         Diretor:             Tempo:
-# 2012        ----                  1
-# 2011        Marcos Antonio Molina dos Santos    2
-# 2010        Marcos Antonio Molina dos Santos    2
-p9 <- function(dataInfo) {
-  yearVector = vector();
-  CompanyVector = vector();
-  CodeVector = vector();
-  DirectorVector = vector();
-  MandateTimeVector = vector();
-  
-  by(dataInfo, 1:nrow(dataInfo), function(company) {
-    hResp = company['history.responsible.docs']$history.responsible.docs[[1]];
-    if (!is.null(hResp)) {
-      hResp = filter(hResp, person.job %in% c("Diretor Presidente", "Diretor Presidente/Relações com Investidores"));
-      
-      if (nrow(hResp) > 0) {
-        localYearVector  = vector();
-        localCompany = vector();
-        localCode = vector();
-        localDirector = vector();
-        localMandateTime = vector();
-        cName = hResp[[1, 1]];
-        actualDirectorName = "";
-        yearsCounter = 0;
-        for (index in 1:nrow(hResp)) {
-          if (!is.null(hResp$person.name[index]) && !is.na(hResp$person.name[index])) {
-            if (actualDirectorName == "" || actualDirectorName == hResp$person.name[index]) {
-              yearsCounter = yearsCounter + 1;
-            } else {
-              localMandateTime <- c(localMandateTime, rep(c(yearsCounter), yearsCounter));
-              yearsCounter = 1;
-            }
-            
-            actualDirectorName = hResp$person.name[index];
-            localDirector <- c(localDirector, hResp$person.name[index]);
-            localYearVector <- c(localYearVector, parseDate(hResp$ref.date[index]));
-            localCompany <- c(localCompany, cName);
-            localMandateTime <- c(localMandateTime, hResp$perc.ord.shares[index]);
-            localCode <- c(localCode, getCompanyCode(cName));  
-          }
-        }
-        localMandateTime <- c(localMandateTime, rep(c(yearsCounter), yearsCounter));
-        yearVector <<- c(yearVector, localYearVector);
-        CompanyVector <<- c(CompanyVector, localCompany);
-        CodeVector <<- c(CodeVector, localCode);
-        DirectorVector <<- c(DirectorVector, localDirector);
-        MandateTimeVector <<- c(MandateTimeVector, localMandateTime);
-      }
-    }
-    
-    
-  });
-  
-  resultFrame = data.frame(
-    "Codigo" = CodeVector,
-    "Companhia" = CompanyVector,
-    "Ano" = yearVector,
-    "Diretor" = DirectorVector,
-    "Tempo de Mandato (Anos)" = MandateTimeVector
-  );
-  View(resultFrame);
-  
-  return(resultFrame);
-}
-
-p9(df.statements);
+#p9(df.statements);
 #planilha10 <- p10(brunoSheet);
 
 #planilha11 <- p11(df.statements);
 
 #p12(brunoSheet);
+
+p6 <- function(plan5) {
+  sortedPlan = plan5[order(-plan5$Remuneração.Média),];
+  index = 1;
+  years = c(2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017);
+  RMRankitVector = vector();
+  RRMVector = vector();
+  
+  for (year in years) {
+    inYearComp = filter(sortedPlan, sortedPlan$Ano == year);
+    total = nrow(inYearComp);
+    for (index in 1:total) {
+      RMRankit = total - index + 1;
+      RMRankitVector <- c(RMRankitVector, RMRankit);
+      RMM = (RMRankit - 1)/(index);
+      RRMVector <- c(RRMVector, RMM);
+    }
+  }
+  sortedPlan["RMRankit"] = RMRankitVector;
+  sortedPlan["RMM"] = RRMVector;
+  resultFrame = sortedPlan[order(-sortedPlan$Remuneração.Média),];
+  View(resultFrame);
+  
+  return (resultFrame);
+}
+
+planilha6 <-p6(planilha5)
