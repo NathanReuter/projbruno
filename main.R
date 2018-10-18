@@ -20,7 +20,7 @@ problematicCompanies = c("COSAN SA INDUSTRIA E COMERCIO", "COMPANHIA PROVIDENCIA
 "COMPANHIA BRASILEIRA DE DISTRIBUI??O", "COMPANHIA DE SANEAMENTO DE MINAS GERAIS", "INDS J B DUARTE SA",
 "CONST SULTEPA SA - EM RECUPERA??O JUDICIAL");
 
-name.companies <- allCompanies[100:400];
+name.companies <- allCompanies[200:300];
 
 name.companies <- setdiff(name.companies, problematicCompanies)
 first.date <- '2010-01-01';
@@ -33,7 +33,7 @@ df.statements <- gdfpd.GetDFPData(name.companies = name.companies,first.date = f
 
 # planilha3 = p3(df.statements)
 
-#planilha5 <- p5(df.statements);
+#planilha5 <- p5(df.statements);2
 
 #planilha7 <- p7(df.statements);
 
