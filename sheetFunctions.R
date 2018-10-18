@@ -516,3 +516,32 @@ p11 <- function(dataInfo) {
 
 # p12 Dummy 1 - Setor que será observado; 0 - Caso contrário 
 # Separa pela planilha bruno.xls código, nomeCOmpania e nomesetor
+p12 <- function(dataInfo) {
+  #TODO
+  codeVector = vector();
+  companyVector = vector();
+  activeValueVector = vector();
+  yearVector = vector();
+  yearCounter <- 2009;
+  j <- 0;
+  for (colSheet in  brunoSheet[5: length(brunoSheet)]) {
+    j = j + length(companyVector)
+    yearCounter = yearCounter + 1;
+    i = 0;
+    k = 3
+    for (activeValue in colSheet[k + 1: length(colSheet)]) {
+      i = i + 1;
+      cName = unlist(brunoSheet[k + i, 2]);
+      aValue = as.numeric(unlist(activeValue));
+      codeVector[i + j] = getCompanyCode(cName);
+      companyVector[i + j] = cName;
+      yearVector[i + j] = yearCounter;
+      activeValueVector[i + j] = log(aValue);
+    }
+  }
+  
+  resultFrame = data.frame("Código" = codeVector, "Companhia" = companyVector, "Ano" = yearVector, 'Valor Ativo' = activeValueVector);
+  View(resultFrame)
+  
+  return (resultFrame)
+}
