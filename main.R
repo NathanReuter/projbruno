@@ -68,19 +68,21 @@ p9 <- function(dataInfo) {
         actualDirectorName = "";
         yearsCounter = 0;
         for (index in 1:nrow(hResp)) {
-          if (actualDirectorName == "" || actualDirectorName == hResp$person.name[index]) {
-            yearsCounter = yearsCounter + 1;
-          } else {
-            localMandateTime <- c(localMandateTime, rep(c(yearsCounter), yearsCounter));
-            yearsCounter = 1;
+          if (!is.null(hResp$person.name[index]) && !is.na(hResp$person.name[index])) {
+            if (actualDirectorName == "" || actualDirectorName == hResp$person.name[index]) {
+              yearsCounter = yearsCounter + 1;
+            } else {
+              localMandateTime <- c(localMandateTime, rep(c(yearsCounter), yearsCounter));
+              yearsCounter = 1;
+            }
+            
+            actualDirectorName = hResp$person.name[index];
+            localDirector <- c(localDirector, hResp$person.name[index]);
+            localYearVector <- c(localYearVector, parseDate(hResp$ref.date[index]));
+            localCompany <- c(localCompany, cName);
+            localMandateTime <- c(localMandateTime, hResp$perc.ord.shares[index]);
+            localCode <- c(localCode, getCompanyCode(cName));  
           }
-          
-          actualDirectorName = hResp$person.name[index];
-          localDirector <- c(localDirector, hResp$person.name[index]);
-          localYearVector <- c(localYearVector, parseDate(hResp$ref.date[index]));
-          localCompany <- c(localCompany, cName);
-          localMandateTime <- c(localMandateTime, hResp$perc.ord.shares[index]);
-          localCode <- c(localCode, getCompanyCode(cName));  
         }
         localMandateTime <- c(localMandateTime, rep(c(yearsCounter), yearsCounter));
         yearVector <<- c(yearVector, localYearVector);
