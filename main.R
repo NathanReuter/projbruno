@@ -20,9 +20,8 @@ problematicCompanies = c("COSAN SA INDUSTRIA E COMERCIO", "COMPANHIA PROVIDENCIA
 "COMPANHIA BRASILEIRA DE DISTRIBUI??O", "COMPANHIA DE SANEAMENTO DE MINAS GERAIS", "INDS J B DUARTE SA",
 "CONST SULTEPA SA - EM RECUPERA??O JUDICIAL");
 
-name.companies <- allCompanies[1:100];
-
-name.companies <- setdiff(name.companies, problematicCompanies)
+name.companies <- allCompanies[1:400];
+#name.companies <- setdiff(name.companies, problematicCompanies)
 first.date <- '2010-01-01';
 last.date <- '2017-01-01';
 df.statements <- gdfpd.GetDFPData(name.companies = name.companies,first.date = first.date);
@@ -59,7 +58,7 @@ p6 <- function(plan5) {
     for (index in 1:total) {
       RMRankit = total - index + 1;
       RMRankitVector <- c(RMRankitVector, RMRankit);
-      RMM = (RMRankit - 1)/(index);
+      RMM = round((RMRankit - 1)/(total -1), 2);
       RRMVector <- c(RRMVector, RMM);
     }
   }
