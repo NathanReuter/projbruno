@@ -253,8 +253,29 @@ p5 <- function(dataInfo) {
 
 # p6 Ranking da Remuneração Média (RRM)
 # Fazer Global, para todas as empresas e rankear entre 0-1 o as empresas de acrodo com a remuneração média
-p6 <- function(p5) {
-  p5[order(p5)]
+p6 <- function(plan5) {
+  sortedPlan = plan5[order(-plan5$Remuneração.Média),];
+  index = 1;
+  years = c(2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017);
+  RMRankitVector = vector();
+  RRMVector = vector();
+  
+  for (year in years) {
+    inYearComp = filter(sortedPlan, sortedPlan$Ano == year);
+    total = nrow(inYearComp);
+    for (index in 1:total) {
+      RMRankit = total - index + 1;
+      RMRankitVector <- c(RMRankitVector, RMRankit);
+      RMM = round((RMRankit - 1)/(total -1), 2);
+      RRMVector <- c(RRMVector, RMM);
+    }
+  }
+  sortedPlan["RMRankit"] = RMRankitVector;
+  sortedPlan["RMM"] = RRMVector;
+  resultFrame = sortedPlan[order(-sortedPlan$Remuneração.Média),];
+  View(resultFrame);
+  
+  return (resultFrame);
 }
 
 # p7 Nível percentual de ações em posse dos executivos
@@ -271,7 +292,7 @@ p7 <- function(dataInfo) {
   by(dataInfo, 1:nrow(dataInfo), function(company) {
     hResp = company['history.responsible.docs']$history.responsible.docs[[1]];
     if (!is.null(hResp)) {
-      hResp = filter(hResp, person.job == "Diretor Presidente");
+      hResp = filter(hResp, person.job %in% c("Diretor Presidente", "Diretor Presidente/Relações com Investidores"));
       hStockHolders = company$history.stockholders[[1]];
       
       if (nrow(hResp) > 0 && nrow(hStockHolders) > 0 ) {

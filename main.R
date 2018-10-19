@@ -26,42 +26,81 @@ df.statements <- gdfpd.GetDFPData(name.companies = name.companies,first.date = f
 
 # planilha3 = p3(df.statements)
 
-planilha5 <- p5(df.statements);
+#planilha5 <- p5(df.statements);
 
-#planilha7 <- p7(df.statements);
+#planilha6 <-p6(planilha5);
+
+planilha7 <- p7(df.statements);
 
 #planilha8 <- p8(df.statements);
 
 #p9(df.statements);
+
 #planilha10 <- p10(brunoSheet);
 
 #planilha11 <- p11(df.statements);
 
 #p12(brunoSheet);
 
-p6 <- function(plan5) {
-  sortedPlan = plan5[order(-plan5$Remuneração.Média),];
-  index = 1;
-  years = c(2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017);
-  RMRankitVector = vector();
-  RRMVector = vector();
+#p4 pular
+# Usar a 7 para saber quem são os CEO e verficar as pessoas fiísicas em history.stockholders, pegar todos menos o CEO.
+# Depois pegar todas s pessoas fisicas e comparar quem faz parte do conselho em history.board.composition
+# e somar as ações dessas pessoas
+
+p4 <- function(dataInfo, plan7) {
+  yearVector = vector();
+  CompanyVector = vector();
+  CodeVector = vector();
+  DirectorVector = vector();
+  OrderShareVector = vector();
   
-  for (year in years) {
-    inYearComp = filter(sortedPlan, sortedPlan$Ano == year);
-    total = nrow(inYearComp);
-    for (index in 1:total) {
-      RMRankit = total - index + 1;
-      RMRankitVector <- c(RMRankitVector, RMRankit);
-      RMM = round((RMRankit - 1)/(total -1), 2);
-      RRMVector <- c(RRMVector, RMM);
+  by(dataInfo, 1:nrow(dataInfo), function(company) {
+    hStockHolders = company$history.stockholders[[1]];
+    if (!is.null(hStockHolders)) {
+      hStockHolders = filter(hStockHolders, type.stockholder == "Fisica");
+      
+      if (nrow(hStockHolders) > 0) {
+        localYearVector  = vector();
+        localCompany = vector();
+        localCode = vector();
+        localDirector = vector();
+        localOrderShare = vector();
+        cName = hStockHolders[[1, 1]];
+        
+        for (name in hStockHolders$person.name) {
+          result = filter(hStockHolders, name.stockholder == name);
+          #TODO CHECK FOR MORE DE UM RESULT AND CHECK FOR NULL BEFORE FILTER
+          if (nrow(result) > 0) {
+            for (index in 1:nrow(result)) {
+              localDirector <- c(localDirector, name);
+              localYearVector <- c(localYearVector, parseDate(result$ref.date[index]));
+              localCompany <- c(localCompany, cName);
+              localOrderShare <- c(localOrderShare, result$perc.ord.shares[index]);
+              localCode <- c(localCode, getCompanyCode(cName));  
+            }
+          }
+        }
+        
+        yearVector <<- c(yearVector, localYearVector);
+        CompanyVector <<- c(CompanyVector, localCompany);
+        CodeVector <<- c(CodeVector, localCode);
+        DirectorVector <<- c(DirectorVector, localDirector);
+        OrderShareVector <<- c(OrderShareVector, localOrderShare);
+      }
     }
-  }
-  sortedPlan["RMRankit"] = RMRankitVector;
-  sortedPlan["RMM"] = RRMVector;
-  resultFrame = sortedPlan[order(-sortedPlan$Remuneração.Média),];
-  View(resultFrame);
+    
+    
+  });
   
-  return (resultFrame);
+  resultFrame = data.frame(
+    "Codigo" = CodeVector,
+    "Companhia" = CompanyVector,
+    "Ano" = yearVector,
+    "Diretor" = DirectorVector,
+    "Percentual de Ações" = OrderShareVector
+  );
+  
+  return(resultFrame);
 }
 
-planilha6 <-p6(planilha5)
+p4(df.statements, planilha7);
