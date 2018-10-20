@@ -187,11 +187,70 @@ p3 <- function(dataInfo) {
 # This writes into csv
 #write.csv(sellingPorcentageResultaData, file = "./Planilha 1.csv")
 
-#p4 pular
+#p4
 # Usar a 7 para saber quem são os CEO e verficar as pessoas fiísicas em history.stockholders, pegar todos menos o CEO.
 # Depois pegar todas s pessoas fisicas e comparar quem faz parte do conselho em history.board.composition
 # e somar as ações dessas pessoas
 
+p4 <- function(dataInfo, plan7) {
+  yearVector = vector();
+  CompanyVector = vector();
+  CodeVector = vector();
+  OrderShareVector = vector();
+  
+  by(dataInfo, 1:nrow(dataInfo), function(company) {
+    hStockHolders = company$history.stockholders[[1]];
+    if (!is.null(hStockHolders)) {
+      hStockHolders = filter(hStockHolders, type.stockholder == "Fisica");
+      ceoInConsulList = filter(planilha7, Companhia == hStockHolders$name.company[1]);
+      
+      if (nrow(ceoInConsulList) > 0 && nrow(hStockHolders) > 0) {
+        hStockHolders = filter(hStockHolders, !hStockHolders$name.stockholder %in% ceoInConsulList$Diretor);
+      }
+      
+      if (nrow(hStockHolders) > 0) {
+        localYearVector  = vector();
+        localCompany = vector();
+        localCode = vector();
+        localDirector = vector();
+        localOrderShare = vector();
+        cName = hStockHolders[[1, 1]];
+        oldYear = 0;
+        sumVector = vector();
+        # TODO REMOVE CEO
+        for (index in 1:nrow(hStockHolders)) {
+          sumVector <- c(sumVector, as.numeric(hStockHolders$qtd.ord.shares[index]));
+          actualYear = parseDate(hStockHolders$ref.date[index])
+          
+          if (oldYear != actualYear) {
+            localOrderShare <- c(localOrderShare, sum(sumVector));
+            sumVector <- vector();
+            localYearVector <- c(localYearVector, actualYear);
+            localCompany <- c(localCompany, cName);
+            localCode <- c(localCode, getCompanyCode(cName));
+          }
+          oldYear = actualYear;
+        }
+        
+        yearVector <<- c(yearVector, localYearVector);
+        CompanyVector <<- c(CompanyVector, localCompany);
+        CodeVector <<- c(CodeVector, localCode);
+        OrderShareVector <<- c(OrderShareVector, localOrderShare);
+      }
+    }
+    
+    
+  });
+  
+  resultFrame = data.frame(
+    "Codigo" = CodeVector,
+    "Companhia" = CompanyVector,
+    "Ano" = yearVector,
+    "APC" = OrderShareVector
+  );
+  
+  return(resultFrame);
+}
 # p5 Remuneração Média (RM)
 # pegar no history.compensation e dividir total.value / qtd.members
 p5 <- function(dataInfo) {
