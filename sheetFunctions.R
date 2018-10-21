@@ -1,12 +1,24 @@
 # Exemple to fetch information from the info dataframe and rebuild into a dataframe again
 
-getCompanyCode <- function(name) {
-  code = unlist((filter(df.statements, company.name == name)[2]));
-  if (length(code) == 0L) {
-    return (666);
+getCompanyCode <- function(name, haslevels) {
+  if (is.na(name)) {
+    return (0);
   }
   
-  return (code);
+  if (missing(haslevels)) {
+    haslevels = FALSE;
+  }
+  if (haslevels && typeof(name) != "character") {
+    name = str(droplevels(name));
+  }
+
+  #print(name)
+  code = (filter(codeAndName, grepl(name, company.name, ignore.case=TRUE)));
+  if (length(code) == 0L || nrow(code) < 1) {
+    return (0);
+  }
+  
+  return (code[[1,1]]);
 }
 
 # P1 - Número de processos judiciais sofridos pela empresa
@@ -27,7 +39,7 @@ p1 <- function (dataInfo) {
     
     for (i in 1:length(yearInfo[[1]])) {
       company = yearInfo[[i, 1]];
-      codeVector[j + i] = getCompanyCode(company)[1];
+      codeVector[j + i] = getCompanyCode(company, FALSE)[1];
       companyVector[j + i] <- company;
       processVector[j + i] <- yearInfo[[i, 2]];
       yearVector[j + i] <- year;
@@ -35,8 +47,9 @@ p1 <- function (dataInfo) {
   }
   
   resultFrame = data.frame(
-    "Codigo" = codeVector, 
+    "Código" = codeVector, 
     "Companhia" = companyVector, "Número Processos" = processVector, "Ano" = yearVector);
+  resultFrame = filter(resultFrame, !Código == 0)
   View(resultFrame)
   
   return (resultFrame);
@@ -149,7 +162,7 @@ p3 <- function(dataInfo) {
         localMandatesVector = vector();
         auxmandatesVector = vector();
         for (index in seq_along(hBoardComposition$ref.date)) {
-          parsedYear = parseDate(hComp$ref.date[index]);
+          parsedYear = parseDate(hBoardComposition$ref.date[index]);
           
           if (!(parsedYear %in% localYearVector)) {
             localYearVector <- c(localYearVector, parsedYear);
@@ -329,6 +342,7 @@ p6 <- function(plan5) {
       RRMVector <- c(RRMVector, RMM);
     }
   }
+  View(RMRankitVector);
   sortedPlan["RMRankit"] = RMRankitVector;
   sortedPlan["RMM"] = RRMVector;
   resultFrame = sortedPlan[order(-sortedPlan$Remuneração.Média),];
@@ -535,7 +549,7 @@ p10 <- function(dataInfo) {
       i = i + 1;
       cName = unlist(brunoSheet[k + i, 2]);
       aValue = as.numeric(unlist(activeValue));
-      codeVector[i + j] = getCompanyCode(cName);
+      codeVector[i + j] = getCompanyCode(cName, TRUE);
       companyVector[i + j] = cName;
       yearVector[i + j] = yearCounter;
       activeValueVector[i + j] = log(aValue);
@@ -543,6 +557,7 @@ p10 <- function(dataInfo) {
   }
   
   resultFrame = data.frame("Código" = codeVector, "Companhia" = companyVector, "Ano" = yearVector, 'Valor Ativo' = activeValueVector);
+  resultFrame = filter(resultFrame, !Código == 0);
   View(resultFrame)
   
   return (resultFrame)
@@ -599,6 +614,8 @@ p11 <- function(dataInfo) {
     "Dummy" = DummyVector
   );
   
+  View(resultFrame);
+  
   return(resultFrame);
 }
 
@@ -622,7 +639,7 @@ p12 <- function(dataInfo) {
       i = i + 1;
       cName = unlist(brunoSheet[k + i, 2]);
       aValue = as.numeric(unlist(activeValue));
-      codeVector[i + j] = getCompanyCode(cName);
+      codeVector[i + j] = getCompanyCode(cName, TRUE);
       companyVector[i + j] = cName;
       yearVector[i + j] = yearCounter;
       activeValueVector[i + j] = log(aValue);
@@ -630,7 +647,7 @@ p12 <- function(dataInfo) {
   }
   
   resultFrame = data.frame("Código" = codeVector, "Companhia" = companyVector, "Ano" = yearVector, 'Valor Ativo' = activeValueVector);
+  resultFrame = filter(resultFrame, !Código == 0)
   View(resultFrame)
-  
   return (resultFrame)
 }
