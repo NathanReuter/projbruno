@@ -24,7 +24,10 @@ getCompanyCode <- function(name, haslevels) {
 # P1 - Número de processos judiciais sofridos pela empresa
 # Pegar da tabela processos.xl, e padronizar por ano
 
-p1 <- function (dataInfo) {
+p1 <- function (dataInfo, filterNull) {
+  if (missing(filterNull)) {
+    filterNull = TRUE;
+  }
   # todo, method to get all companies code
   codeVector = vector();
   companyVector = vector();
@@ -49,7 +52,10 @@ p1 <- function (dataInfo) {
   resultFrame = data.frame(
     "Código" = codeVector, 
     "Companhia" = companyVector, "Número Processos" = processVector, "Ano" = yearVector);
-  resultFrame = filter(resultFrame, !Código == 0)
+  if (filterNull) {
+    resultFrame = filter(resultFrame, !Código == 0);  
+  }
+  
   View(resultFrame)
   
   return (resultFrame);
@@ -195,10 +201,6 @@ p3 <- function(dataInfo) {
   
   return (resultFrame);
 }
-
-#sellingPorcentageResultaData <-sellingPorcentage(df.statements)
-# This writes into csv
-#write.csv(sellingPorcentageResultaData, file = "./Planilha 1.csv")
 
 #p4
 # Usar a 7 para saber quem são os CEO e verficar as pessoas fiísicas em history.stockholders, pegar todos menos o CEO.
@@ -529,11 +531,13 @@ p9 <- function(dataInfo) {
   return(resultFrame);
 }
 
-
 # p10 Logaritmo natural do total de ativos de uma empresa
 # Pegar a planilha Bruno.xls
 # Color no formato codigo, nome, e pegar o valor de total de ativos e aplica Ln em todos os anos(COlunas)
-p10 <- function(dataInfo) {
+p10 <- function(dataInfo, filterNull) {
+  if (missing(filterNull)) {
+    filterNull = TRUE;
+  }
   codeVector = vector();
   companyVector = vector();
   activeValueVector = vector();
@@ -557,7 +561,9 @@ p10 <- function(dataInfo) {
   }
   
   resultFrame = data.frame("Código" = codeVector, "Companhia" = companyVector, "Ano" = yearVector, 'Valor Ativo' = activeValueVector);
-  resultFrame = filter(resultFrame, !Código == 0);
+  if (filterNull) {
+    resultFrame = filter(resultFrame, !Código == 0);  
+  }
   View(resultFrame)
   
   return (resultFrame)
@@ -622,8 +628,10 @@ p11 <- function(dataInfo) {
 
 # p12 Dummy 1 - Setor que será observado; 0 - Caso contrário 
 # Separa pela planilha bruno.xls código, nomeCOmpania e nomesetor
-p12 <- function(dataInfo) {
-  #TODO
+p12 <- function(dataInfo, filterNull) {
+  if (missing(filterNull)) {
+    filterNull = TRUE;
+  }
   codeVector = vector();
   companyVector = vector();
   activeValueVector = vector();
@@ -647,7 +655,9 @@ p12 <- function(dataInfo) {
   }
   
   resultFrame = data.frame("Código" = codeVector, "Companhia" = companyVector, "Ano" = yearVector, 'Valor Ativo' = activeValueVector);
-  resultFrame = filter(resultFrame, !Código == 0)
+  if (filterNull) {
+    resultFrame = filter(resultFrame, !Código == 0);  
+  }
   View(resultFrame)
   return (resultFrame)
 }
