@@ -301,7 +301,7 @@ p5 <- function(dataInfo) {
           
         }
         average = hComp$total.value.remuneration[index]/ hComp$qtd.members[index];
-        if (is.nan(average)) {
+        if (is.nan(average) || is.infinite(average)) {
           average = 0;
         }
         localAuxAR <- c(localAuxAR, average);
@@ -321,7 +321,7 @@ p5 <- function(dataInfo) {
     "Ano" = yearVector,
     "Remuneração Média" = AverageRemunaration
   );
-  View(resultFrame)
+
   return(resultFrame);
 }
 
@@ -348,7 +348,7 @@ p6 <- function(plan5) {
   sortedPlan["RMRankit"] = RMRankitVector;
   sortedPlan["RMM"] = RRMVector;
   resultFrame = sortedPlan[order(-sortedPlan$Remuneração.Média),];
-  View(resultFrame);
+  
   
   return (resultFrame);
 }
@@ -526,7 +526,7 @@ p9 <- function(dataInfo) {
     "Diretor" = DirectorVector,
     "Tempo de Mandato (Anos)" = MandateTimeVector
   );
-  View(resultFrame);
+  
   
   return(resultFrame);
 }
@@ -620,7 +620,7 @@ p11 <- function(dataInfo) {
     "Dummy" = DummyVector
   );
   
-  View(resultFrame);
+  
   
   return(resultFrame);
 }
