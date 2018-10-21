@@ -458,7 +458,7 @@ p8 <- function(dataInfo) {
     "Código" = CodeVector,
     "Companhia" = CompanyVector,
     "Ano" = yearVector,
-    "Dummy" = DummyVector
+    "POC" = DummyVector
   );
   return(resultFrame);
 }
