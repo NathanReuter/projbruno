@@ -44,3 +44,15 @@ parseDate <- function(DateString) {
   return (parsedYear);
 }
 
+#Fecht companies code
+# Get all companies name, this will be use later
+# allCompanies = gdfpd.get.info.companies(type.data = "companies")[[1]];
+# # Test info to get ONE companie info
+# name.companies <- allCompanies;
+# name.companies <- setdiff(name.companies, c("MARAMBAIA ENERGIA RENOVÁVEL SA"));
+# first.date <- '2010-01-01';
+# last.date <- '2017-01-01';
+# df.statements <- gdfpd.GetDFPData(name.companies = name.companies,first.date = first.date);
+# save(df.statements,file="statements.Rda")
+
+
