@@ -650,7 +650,7 @@ p12 <- function(dataInfo, filterNull) {
       codeVector[i + j] = getCompanyCode(cName, TRUE);
       companyVector[i + j] = cName;
       yearVector[i + j] = yearCounter;
-      activeValueVector[i + j] = log(aValue);
+      activeValueVector[i + j] = unlist(brunoSheet[k + i, 4]);
     }
   }
   
@@ -660,4 +660,34 @@ p12 <- function(dataInfo, filterNull) {
   }
   View(resultFrame)
   return (resultFrame)
+}
+
+writePlanilhas <- function () {
+  write.xlsx2(planilha1, "./excels/Planilha1.xlsx");
+  write.xlsx2(planilha2, "./excels/Planilha2.xlsx");
+  write.xlsx2(planilha3, "./excels/Planilha3.xlsx");
+  write.xlsx2(planilha4, "./excels/Planilha4.xlsx");
+  write.xlsx2(planilha5, "./excels/Planilha5.xlsx");
+  write.xlsx2(planilha6, "./excels/Planilha6.xlsx");
+  write.xlsx2(planilha7, "./excels/Planilha7.xlsx");
+  write.xlsx2(planilha8, "./excels/Planilha8.xlsx");
+  write.xlsx2(planilha9, "./excels/Planilha9.xlsx");
+  write.xlsx2(planilha10, "./excels/Planilha10.xlsx");
+  write.xlsx2(planilha11, "./excels/Planilha11.xlsx");
+  write.xlsx2(planilha12, "./excels/Planilha12.xlsx");
+}
+
+readPlanilhas <- function() {
+  planilha1 = read.csv("./completas/Planilha 1.csv");
+  planilha2 = read.csv("./completas/Planilha 2.csv");
+  planilha3 = read.csv("./completas/Planilha 3.csv");
+  planilha4 = read.csv("./completas/Planilha 4.csv");
+  planilha5 = read.csv("./completas/Planilha 5.csv");
+  planilha6 = read.csv("./completas/Planilha 6.csv");
+  planilha7 = read.csv("./completas/Planilha 7.csv");
+  planilha8 = read.csv("./completas/Planilha 8.csv");
+  planilha9 = read.csv("./completas/Planilha 9.csv");
+  planilha10 = read.csv("./completas/Planilha 10.csv");
+  planilha11 = read.csv("./completas/Planilha 11.csv");
+  planilha12 = read.csv("./completas/Planilha 12.csv");  
 }
