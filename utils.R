@@ -44,6 +44,10 @@ parseDate <- function(DateString) {
   return (parsedYear);
 }
 
+saveData <- function(file, name) {
+  save(file, paste("./complestas/", name, sep = ""))
+}
+
 #Fecht companies code
 # Get all companies name, this will be use later
 # allCompanies = gdfpd.get.info.companies(type.data = "companies")[[1]];

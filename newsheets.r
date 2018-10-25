@@ -1,6 +1,6 @@
 #Ranking dos Processos Judiciais (RPJ)
 rpjFunc <- function(dataInfo) {
-  sorted = planilha1[order(-planilha1$Número.Processos),]
+  sorted = dataInfo[order(-dataInfo$Número.Processos),]
   years = c(2010,2011,2012,2013,2014,2015,2016,2017);
   codeVector  = vector();
   yearVector  = vector();
@@ -27,5 +27,3 @@ rpjFunc <- function(dataInfo) {
   
   return (merge(dataInfo ,semiResultFrame, by=c("Código","Ano")))
 }
-
-rpjSheet = rpjFunc(planilha1);
