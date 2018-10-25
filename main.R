@@ -3,6 +3,7 @@ setwd("~/projects/projetoBruno/progFiles")
 # Load local Scripts
 source("utils.R");
 source("sheetFunctions.R");
+source("newsheets.r");
 # Load GetDFP library
 library("GetDFPData");
 library("dplyr")
@@ -13,5 +14,6 @@ processSheet = read_excel_allsheets("resourceSheets/processos.xlsx");
 processSheet = processSheet[7: length(processSheet)-1];
 codeAndName = read.csv("./codeAndName.csv");
 try({is.null(df.statements)}, {load("./statements.Rda");})
-
+planilha1 = read.csv("./completas/Planilha 1.csv");
+load("./saves/rpj.Rda")
 
