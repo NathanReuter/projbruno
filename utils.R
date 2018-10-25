@@ -1,5 +1,5 @@
 library(readxl);
-
+SAVES_PATH = "./saves/";
 #Method to convert the list into a ROW dataframe
 listToROW <- function(data) {
   nCol <- max(vapply(data, length, 0))
@@ -45,7 +45,11 @@ parseDate <- function(DateString) {
 }
 
 saveData <- function(file, name) {
-  save(file, paste("./complestas/", name, sep = ""))
+  saveRDS(file, paste(SAVES_PATH, name, ".Rds",  sep = ""))
+}
+
+loadData <- function(name) {
+  return(readRDS(paste(SAVES_PATH, name, ".Rds",  sep = "")));
 }
 
 #Fecht companies code
