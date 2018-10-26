@@ -217,7 +217,7 @@ p4 <- function(dataInfo, plan7) {
     hStockHolders = company$history.stockholders[[1]];
     if (!is.null(hStockHolders)) {
       hStockHolders = filter(hStockHolders, type.stockholder == "Fisica");
-      ceoInConsulList = filter(planilha7, Companhia == hStockHolders$name.company[1]);
+      ceoInConsulList = filter(plan7, Companhia == hStockHolders$name.company[1]);
       
       if (nrow(ceoInConsulList) > 0 && nrow(hStockHolders) > 0) {
         hStockHolders = filter(hStockHolders, !hStockHolders$name.stockholder %in% ceoInConsulList$Diretor);
@@ -234,7 +234,8 @@ p4 <- function(dataInfo, plan7) {
         sumVector = vector();
         # TODO REMOVE CEO
         for (index in 1:nrow(hStockHolders)) {
-          sumVector <- c(sumVector, as.numeric(hStockHolders$qtd.ord.shares[index]));
+          value = as.numeric(hStockHolders$perc.pref.shares[index]) + as.numeric(hStockHolders$perc.ord.shares[index])
+          sumVector <- c(sumVector, round(value, 2));
           actualYear = parseDate(hStockHolders$ref.date[index])
           
           if (oldYear != actualYear) {

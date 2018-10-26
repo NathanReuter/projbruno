@@ -28,27 +28,81 @@ rpjFunc <- function(dataInfo) {
   return (merge(dataInfo ,semiResultFrame, by=c("Código","Ano")))
 }
 
-#Q de Tobin Simplificado (QT)
-#[Valor de Mercado + (Passivo Total – Patrimônio Líquido)]/Ativo Total
+#Planilha 4: Ranking Q de Tobin Simplificado (RQT)
+#RQTit = (RankRQTit – 1)/(N – 1).
 QTFun <- function(dataInfo) {
+  resultFrame= data.frame();
+  for (index in 1:nrow(dataInfo)) {
+    selectedInfo = dataInfo[index, ]
+    cCode = selectedInfo$company.code;
+    cName = selectedInfo$company.name;
+    percent = 100 -((nrow(dataInfo) - index) * 100/nrow(dataInfo));
+    print(percent);
+    mktvalue = selectedInfo$history.mkt.value[[1]];
+    valorMercado = mktvalue[, c(2,3)];
+    liabilities = selectedInfo$fr.liabilities[[1]]
+    passivoTotal = liabilities[liabilities$acc.desc == "Passivo Total", c(2,5)]
+    passivoTotal$passivoTotal = passivoTotal$acc.value * 1000;
+    patrimonioLiquido = liabilities[liabilities$acc.desc == "Patrimônio Líquido", c(2,5)];
+    patrimonioLiquido$patrimonioLiquido = patrimonioLiquido$acc.value * 1000;
+    assets = selectedInfo$fr.assets[[1]];
+    ativoTotal = assets[assets$acc.desc == "Ativo Total", c(2,5)];
+    ativoTotal$ativoTotal = ativoTotal$acc.value * 1000;
+    try({
+      mergedData = Reduce(function(x, y) merge(x, y, by = "ref.date"), list(valorMercado, passivoTotal, patrimonioLiquido, ativoTotal));
+      QTvalue = (mergedData$mkt.avg.value + (mergedData$passivoTotal - mergedData$patrimonioLiquido)) / mergedData$ativoTotal;
+      mergedData["Código"] = rep(cCode, nrow(mergedData));
+      mergedData["Nome"] = rep(cName, nrow(mergedData));
+      mergedData["QT"] = QTvalue;
+      mergedData = mergedData[, c(1, 9, 10, 11)];
+      resultFrame = rbind(resultFrame, mergedData);  
+    })
+  }
   
-  mktvalue = dataInfo$history.mkt.value[[1]];
-  valorMercado = mktvalue[, c(2,3)];
-  liabilities = dataInfo$fr.liabilities[[1]]
-  passivoTotal = liabilities[liabilities$acc.desc == "Passivo Total", c(2,5)]
-  passivoTotal$passivoTotal = passivoTotal$acc.value * 1000;
-  patrimonioLiquido = liabilities[liabilities$acc.desc == "Patrimônio Líquido", c(2,5)];
-  patrimonioLiquido$patrimonioLiquido = patrimonioLiquido$acc.value * 1000;
-  assets = dataInfo$fr.assets[[1]];
-  ativoTotal = assets[assets$acc.desc == "Ativo Total", c(2,5)];
-  ativoTotal$ativoTotal = ativoTotal$acc.value * 1000;
-  mergedData = Reduce(function(x, y) merge(x, y, by = "ref.date"), list(valorMercado, passivoTotal, patrimonioLiquido, ativoTotal));
-  QTvalue = (mergedData$mkt.avg.value + (mergedData$passivoTotal - mergedData$patrimonioLiquido)) / mergedData$ativoTotal;
-  mergedData = merge(mergedData, QTvalue, all=TRUE)[, c(1, 9)];
-  colnames(mergedData)[2] = "QT";
-  resultFrame = merge(dataInfo[, c(1,2)], mergedData);
+  resultFrame$ref.date = sapply(resultFrame$ref.date, parseDate);
+  colnames(resultFrame)[1] = "Ano";
   View(resultFrame);
+  
   saveData(resultFrame, "QT");
   return (resultFrame);
-  # sapply(resultFrame$ref.date, parseDate) for format date in all vector
 }
+
+# Ranking Q de Tobin Simplificado (RQT)
+RQTFunc <- function(QT) {
+  sorted = QT[order(-QT$QT),];
+  years = unique(QT$Ano);
+  resultFrame = data.frame();
+  for (year in years) {
+    filtered = filter(sorted, Ano == year);
+    nElements = nrow(filtered);
+    Rank =  nElements - as.numeric(rownames(filtered));
+    RQTit = (Rank)/(nElements - 1)
+    filtered["RQT"] = RQTit;
+    resultFrame = rbind(resultFrame, filtered);
+  }
+  
+  View(resultFrame);
+  saveData(resultFrame, "RQT");
+  return (resultFrame);
+}
+
+RAPCFunc <- function(APC) {
+  sorted = APC[order(-APC$APC),];
+  years = unique(QT$Ano);
+  resultFrame = data.frame();
+  for (year in years) {
+    filtered = filter(sorted, Ano == year);
+    nElements = nrow(filtered);
+    Rank =  nElements - as.numeric(rownames(filtered));
+    RQTit = (Rank)/(nElements - 1)
+    filtered["RAPC"] = RQTit;
+    resultFrame = rbind(resultFrame, filtered);
+  }
+  
+  View(resultFrame);
+  saveData(resultFrame, "RAPC");
+  
+  return (resultFrame);
+}
+
+# ROE problema
