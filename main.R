@@ -25,4 +25,5 @@ planilha1 = read.csv("./completas/Planilha 1.csv");
 #RPC = loadData("RPC")
 #RE = loadData("RE");
 #RRE = loadData("RRE");
-PRV = loadData("PRV");
+#PRV = loadData("PRV");
+#RPRVFunc(PRV) = loadData("RPRV");

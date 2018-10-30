@@ -190,9 +190,29 @@ PRVFunc <- function(dataInfo) {
   resultFrame$ref.date = sapply(resultFrame$ref.date, parseDate);
   colnames(resultFrame)[1] = "Compahnia";
   colnames(resultFrame)[2] = "Ano";
+  resultFrame = do.call(data.frame,lapply(resultFrame, function(x) replace(x, is.infinite(x), 0)))
   View(resultFrame);
   
   saveData(resultFrame, "PRV");
+  
+  return (resultFrame);
+}
+
+RPRVFunc <- function(DATA) {
+  sorted = DATA[order(-DATA$PRV),];
+  years = unique(DATA$Ano);
+  resultFrame = data.frame();
+  for (year in years) {
+    filtered = filter(sorted, Ano == year);
+    nElements = nrow(filtered);
+    Rank =  nElements - as.numeric(rownames(filtered));
+    RQTit = (Rank)/(nElements - 1)
+    filtered["RPRV"] = RQTit;
+    resultFrame = rbind(resultFrame, filtered);
+  }
+  
+  View(resultFrame);
+  saveData(resultFrame, "RPRV");
   
   return (resultFrame);
 }
