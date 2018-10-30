@@ -15,7 +15,7 @@ processSheet = processSheet[7: length(processSheet)-1];
 codeAndName = read.csv("./codeAndName.csv");
 try({is.null(df.statements)}, {load("./saves/statements.Rda");})
 planilha1 = read.csv("./completas/Planilha 1.csv");
-load("./saves/rpj.Rda")
+#load("./saves/rpj.Rda")
 #QT = loadData("QT")
 #RQT = loadData("RQT");
 #P7 = read.csv("./completas/Planilha 7.csv");
@@ -25,3 +25,4 @@ load("./saves/rpj.Rda")
 #RPC = loadData("RPC")
 #RE = loadData("RE");
 #RRE = loadData("RRE");
+PRV = loadData("PRV");

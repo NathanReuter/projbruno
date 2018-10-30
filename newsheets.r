@@ -130,8 +130,6 @@ PCFunc <- function(dataInfo) {
   return (resultFrame);
 }
 
-PC = PCFunc(df.statements);
-
 RPCFunc <- function(PC) {
   sorted = PC[order(-PC$PC),];
   years = unique(PC$Ano);
@@ -151,4 +149,51 @@ RPCFunc <- function(PC) {
   return (resultFrame);
 }
 
+RRECFunc <- function(DATA) {
+  sorted = DATA[order(-DATA$RE),];
+  years = unique(DATA$Ano);
+  resultFrame = data.frame();
+  for (year in years) {
+    filtered = filter(sorted, Ano == year);
+    nElements = nrow(filtered);
+    Rank =  nElements - as.numeric(rownames(filtered));
+    RQTit = (Rank)/(nElements - 1)
+    filtered["RRE"] = RQTit;
+    resultFrame = rbind(resultFrame, filtered);
+  }
+  
+  View(resultFrame);
+  saveData(resultFrame, "RRE");
+  
+  return (resultFrame);
+}
+
+PRVFunc <- function(dataInfo) {
+  resultFrame= data.frame();
+  
+  for (index in 1:nrow(dataInfo)) {
+    selectedInfo = dataInfo[index, ]
+    cCode = selectedInfo$company.code;
+    try({
+      cName = selectedInfo$company.name;
+      hb =selectedInfo$history.compensation[[1]];
+      hb = hb[hb$level.remuneration == "Statutory Directors",];
+      PRV = (hb$variable.bonus + hb$variable.results.participation + hb$variable.meetings.participation 
+             + hb$variable.commissions.participation + hb$variable.others 
+             + hb$stocks.options.benefits) / hb$total.value.remuneration;
+      hb["PRV"] = round(PRV, 4) * 100;
+      hb["Código"] = cCode;
+      parcialFrame = hb[, c(1,2,19,20)];
+      resultFrame = rbind(resultFrame, parcialFrame);  
+    })
+  }
+  resultFrame$ref.date = sapply(resultFrame$ref.date, parseDate);
+  colnames(resultFrame)[1] = "Compahnia";
+  colnames(resultFrame)[2] = "Ano";
+  View(resultFrame);
+  
+  saveData(resultFrame, "PRV");
+  
+  return (resultFrame);
+}
 # ROE problema
