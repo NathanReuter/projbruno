@@ -105,4 +105,50 @@ RAPCFunc <- function(APC) {
   return (resultFrame);
 }
 
+PCFunc <- function(dataInfo) {
+  resultFrame= data.frame();
+  for (index in 1:nrow(dataInfo)) {
+    selectedInfo = dataInfo[index, ]
+    cCode = selectedInfo$company.code;
+    cName = selectedInfo$company.name;
+    hb =selectedInfo$history.board.composition[[1]];
+    years = unique(hb$ref.date);
+    for (year in years) {
+      filtered = hb[hb$ref.date == year, ];
+      total = nrow(unique(filtered));
+      count = nrow(filtered[filtered$code.type.job == 27, ]);
+      value = round(count/total, 4) * 100;
+      parcialFrame = data.frame("Compahnia"=cName, "Código"=cCode, "Ano"=parseDate(filtered$ref.date[1]), "PC"=value);
+      resultFrame = rbind(resultFrame, parcialFrame);
+    }
+  }
+  
+  View(resultFrame);
+  
+  saveData(resultFrame, "PC");
+  
+  return (resultFrame);
+}
+
+PC = PCFunc(df.statements);
+
+RPCFunc <- function(PC) {
+  sorted = PC[order(-PC$PC),];
+  years = unique(PC$Ano);
+  resultFrame = data.frame();
+  for (year in years) {
+    filtered = filter(sorted, Ano == year);
+    nElements = nrow(filtered);
+    Rank =  nElements - as.numeric(rownames(filtered));
+    RQTit = (Rank)/(nElements - 1)
+    filtered["RPC"] = RQTit;
+    resultFrame = rbind(resultFrame, filtered);
+  }
+  
+  View(resultFrame);
+  saveData(resultFrame, "RPC");
+  
+  return (resultFrame);
+}
+
 # ROE problema

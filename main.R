@@ -16,8 +16,12 @@ codeAndName = read.csv("./codeAndName.csv");
 try({is.null(df.statements)}, {load("./saves/statements.Rda");})
 planilha1 = read.csv("./completas/Planilha 1.csv");
 load("./saves/rpj.Rda")
-QT = loadData("QT")
-RQT = loadData("RQT");
+#QT = loadData("QT")
+#RQT = loadData("RQT");
 #P7 = read.csv("./completas/Planilha 7.csv");
 #APC = loadData("APC");
 #RAPC = loadData("RAPC")
+#PC = loadData("PC")
+#RPC = loadData("RPC")
+#RE = loadData("RE");
+#RRE = loadData("RRE");
