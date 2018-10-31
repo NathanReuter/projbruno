@@ -287,4 +287,68 @@ RMAFunc <- function(DATA) {
   return (resultFrame);
 }
 
+SIZEFunc <- function(dataInfo) {
+  resultFrame= data.frame();
+  
+  for (index in 1:nrow(dataInfo)) {
+    selectedInfo = dataInfo[index, ]
+    
+    try({
+      cCode = selectedInfo$company.code;
+      cName = selectedInfo$company.name;
+      hb =selectedInfo$fr.assets[[1]];
+      hb = hb[hb$acc.desc == "Ativo Total",];
+      SIZE = log(hb$acc.value * 1000);
+      hb["SIZE"] = SIZE;
+      hb["Código"] = cCode;
+      resultFrame = rbind(resultFrame, hb[, c(1,2,7, 8)]);  
+    });
+  }
+  
+  resultFrame$ref.date = sapply(resultFrame$ref.date, parseDate);
+  colnames(resultFrame)[1] = "Compahnia";
+  colnames(resultFrame)[2] = "Ano";
+  resultFrame = do.call(data.frame,lapply(resultFrame, function(x) replace(x, is.infinite(x), 0)))
+  View(resultFrame);
+  
+  saveData(resultFrame, "SIZE");
+  
+  return (resultFrame);
+}
+
+NIVFunc <- function(dataInfo) {
+  resultFrame= data.frame();
+  isNiv <- function(X) {
+    if (X %in% c("Novo Mercado", "Nível 2")) {
+      return(1);
+    }
+    
+    return (0)
+  }
+  
+  for (index in 1:nrow(dataInfo)) {
+    selectedInfo = dataInfo[index, ]
+    
+    try({
+      cCode = selectedInfo$company.code;
+      cName = selectedInfo$company.name;
+      hb =selectedInfo$history.governance.listings[[1]];
+      NIV = sapply(hb$listed.segment, isNiv);
+      hb["NIV"] = NIV;
+      hb["Código"] = cCode;
+      resultFrame = rbind(resultFrame, hb[, c(1,2,6, 7)]);  
+    });
+  }
+  
+  resultFrame$ref.date = sapply(resultFrame$ref.date, parseDate);
+  colnames(resultFrame)[1] = "Compahnia";
+  colnames(resultFrame)[2] = "Ano";
+  resultFrame = do.call(data.frame,lapply(resultFrame, function(x) replace(x, is.infinite(x), 0)))
+  View(resultFrame);
+  
+  saveData(resultFrame, "NIV");
+  
+  return (resultFrame);
+}
+
 # ROE problema
