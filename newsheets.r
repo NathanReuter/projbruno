@@ -52,7 +52,7 @@ QTFun <- function(dataInfo) {
       mergedData = Reduce(function(x, y) merge(x, y, by = "ref.date"), list(valorMercado, passivoTotal, patrimonioLiquido, ativoTotal));
       QTvalue = (mergedData$mkt.avg.value + (mergedData$passivoTotal - mergedData$patrimonioLiquido)) / mergedData$ativoTotal;
       mergedData["Código"] = rep(cCode, nrow(mergedData));
-      mergedData["Nome"] = rep(cName, nrow(mergedData));
+      mergedData["Companhia"] = rep(cName, nrow(mergedData));
       mergedData["QT"] = QTvalue;
       mergedData = mergedData[, c(1, 9, 10, 11)];
       resultFrame = rbind(resultFrame, mergedData);  
@@ -118,7 +118,7 @@ PCFunc <- function(dataInfo) {
       total = nrow(unique(filtered));
       count = nrow(filtered[filtered$code.type.job == 27, ]);
       value = round(count/total, 4) * 100;
-      parcialFrame = data.frame("Compahnia"=cName, "Código"=cCode, "Ano"=parseDate(filtered$ref.date[1]), "PC"=value);
+      parcialFrame = data.frame("Companhia"=cName, "Código"=cCode, "Ano"=parseDate(filtered$ref.date[1]), "PC"=value);
       resultFrame = rbind(resultFrame, parcialFrame);
     }
   }
@@ -188,7 +188,7 @@ PRVFunc <- function(dataInfo) {
     })
   }
   resultFrame$ref.date = sapply(resultFrame$ref.date, parseDate);
-  colnames(resultFrame)[1] = "Compahnia";
+  colnames(resultFrame)[1] = "Companhia";
   colnames(resultFrame)[2] = "Ano";
   resultFrame = do.call(data.frame,lapply(resultFrame, function(x) replace(x, is.infinite(x), 0)))
   View(resultFrame);
@@ -239,7 +239,7 @@ POEFunc <- function(dataInfo) {
     })
   }
   resultFrame$ref.date = sapply(resultFrame$ref.date, parseDate);
-  colnames(resultFrame)[1] = "Compahnia";
+  colnames(resultFrame)[1] = "Companhia";
   colnames(resultFrame)[2] = "Ano";
   resultFrame = do.call(data.frame,lapply(resultFrame, function(x) replace(x, is.infinite(x), 0)))
   View(resultFrame);
@@ -263,7 +263,7 @@ RPOEFunc <- function(DATA) {
   }
   
   View(resultFrame);
-  saveData(resultFrame, "POE");
+  saveData(resultFrame, "RPOE");
   
   return (resultFrame);
 }
@@ -306,7 +306,7 @@ SIZEFunc <- function(dataInfo) {
   }
   
   resultFrame$ref.date = sapply(resultFrame$ref.date, parseDate);
-  colnames(resultFrame)[1] = "Compahnia";
+  colnames(resultFrame)[1] = "Companhia";
   colnames(resultFrame)[2] = "Ano";
   resultFrame = do.call(data.frame,lapply(resultFrame, function(x) replace(x, is.infinite(x), 0)))
   View(resultFrame);
@@ -341,7 +341,7 @@ NIVFunc <- function(dataInfo) {
   }
   
   resultFrame$ref.date = sapply(resultFrame$ref.date, parseDate);
-  colnames(resultFrame)[1] = "Compahnia";
+  colnames(resultFrame)[1] = "Companhia";
   colnames(resultFrame)[2] = "Ano";
   resultFrame = do.call(data.frame,lapply(resultFrame, function(x) replace(x, is.infinite(x), 0)))
   View(resultFrame);
@@ -349,6 +349,7 @@ NIVFunc <- function(dataInfo) {
   saveData(resultFrame, "NIV");
   
   return (resultFrame);
-}
+};
+
 
 # ROE problema
