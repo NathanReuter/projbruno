@@ -36,9 +36,9 @@ SIZE = loadData("SIZE");
 NIV = loadData("NIV");
 
 findCode = function (name) {
-  return (codeAndName[codeAndName$company.name == name]$company.code)
+  return (codeAndName[codeAndName$company.name == name,]$company.code)
 }
-
+          
 completaFunc = function(RPJ, RQT, RAPC, RPC, RRE, RPRV, RPOE, POCPE, RMA, SIZE, NIV) {
   merge1 = merge(RPJ, RQT, all = TRUE);
   #merge2 = merge(merge1, RAPC, all = TRUE);
@@ -54,10 +54,14 @@ completaFunc = function(RPJ, RQT, RAPC, RPC, RRE, RPRV, RPOE, POCPE, RMA, SIZE, 
   merge9 = merge(merge8, SIZE, all = TRUE);
   merge10 = merge(merge9, NIV, all = TRUE);
   completa = merge10;
-  completa["AIAE1"] = completa$RQT - completa10$RPJ;
+  completa["AIAE1"] = completa$RQT - completa$RPJ;
+  
+  View(completa);
+  return(completa)
   #["AIAE2"] = completa$RQT - completa10$RPJ;
 }
 
+completaFunc(RPJ, RQT, RAPC, RPC, RRE, RPRV, RPOE, POCPE, RMA, SIZE, NIV);
 
 
 
