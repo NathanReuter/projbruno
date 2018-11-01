@@ -38,22 +38,26 @@ NIV = loadData("NIV");
 findCode = function (name) {
   return (codeAndName[codeAndName$company.name == name,]$company.code)
 }
+
+findCompany = function(code){
+  return (as.character(codeAndName[codeAndName$company.code == code,]$company.name))
+}
           
 completaFunc = function(RPJ, RQT, RAPC, RPC, RRE, RPRV, RPOE, POCPE, RMA, SIZE, NIV) {
   merge1 = merge(RPJ, RQT, all = TRUE);
-  #merge2 = merge(merge1, RAPC, all = TRUE);
   merge2 = merge1;
   merge3 = merge(merge2, RPC, all = TRUE);
   merge4 = merge(merge3, RRE, all = TRUE);
   merge5 = merge(merge4, RPRV, all = TRUE);
   merge6 = merge(merge5, RPOE, all = TRUE);
-  merge7 = merge6;
-  #merge7 = merge(merge6, POCPE, all = TRUE);
-  #merge8 = merge(merge7, RMA, all = TRUE);
-  merge8 = merge7;
+  #merge7 = merge6;
+  merge7 = merge(merge6, POCPE, all = TRUE);
+  merge8 = merge(merge7, RMA, all = TRUE);
   merge9 = merge(merge8, SIZE, all = TRUE);
   merge10 = merge(merge9, NIV, all = TRUE);
-  completa = merge10;
+  merge11 = merge(merge10, RAPC, all = TRUE);
+  completa = merge11;
+  
   completa["AIAE1"] = completa$RQT - completa$RPJ;
   
   View(completa);
