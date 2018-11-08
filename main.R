@@ -13,61 +13,47 @@ brunoSheet = read_excel("resourceSheets/Bruno.xlsx");
 processSheet = read_excel_allsheets("resourceSheets/processos.xlsx");
 processSheet = processSheet[7: length(processSheet)-1];
 codeAndName = read.csv("./codeAndName.csv");
-try({is.null(df.statements)}, {load("./saves/statements.Rda");})
+#try({is.null(df.statements)}, {load("./saves/statements.Rda");})
 #planilha1 = read.csv("./completas/Planilha 1.csv");
-PJ = loadData("PJ");
-RPJ = loadData("RPJ");
-QT = loadData("QT")
-RQT = loadData("RQT");
-APC = loadData("APC");
-RAPC = loadData("RAPC")
-PC = loadData("PC")
-RPC = loadData("RPC")
-RE = loadData("RE");
-RRE = loadData("RRE");
-PRV = loadData("PRV");
-RPRV = loadData("RPRV");
-POE = loadData("POE");
-RPOE = loadData("RPOE");
-POCPE = loadData("POCPE");
-AM = loadData("AM");
-RMA = loadData("RMA");
-SIZE = loadData("SIZE");
-NIV = loadData("NIV");
+# PJ = loadData("PJ");
+# RPJ = loadData("RPJ");
+# QT = loadData("QT")
+# RQT = loadData("RQT");
+# APC = loadData("APC");
+# RAPC = loadData("RAPC")
+# PC = loadData("PC")
+# RPC = loadData("RPC")
+# RE = loadData("RE");
+# RRE = loadData("RRE");
+# PRV = loadData("PRV");
+# RPRV = loadData("RPRV");
+# POE = loadData("POE");
+# RPOE = loadData("RPOE");
+# POCPE = loadData("POCPE");
+# AM = loadData("AM");
+# RMA = loadData("RMA");
+# SIZE = loadData("SIZE");
+# NIV = loadData("NIV");
 
-findCode = function (name) {
-  return (codeAndName[codeAndName$company.name == name,]$company.code)
+df.statements = data.frame();
+allCompanies = loadData("allCompanies");
+doneCompanies = loadData("doneCompanies");
+percent = length(doneCompanies)*100 / length(allCompanies);
+print(percent)
+for (company in setdiff(allCompanies, doneCompanies)) {
+  try({
+    name.companies <- company;
+    #name.companies <- setdiff(name.companies, c("MARAMBAIA ENERGIA RENOVÁVEL SA"));
+    first.date <- '2010-01-01';
+    last.date <- '2017-01-01';
+    statement <- gdfpd.GetDFPData(name.companies = name.companies,first.date = first.date);
+    df.statements <- c(df.statements, statement);
+    doneCompanies <- c(doneCompanies, company);
+    saveData(doneCompanies, "doneCompanies");
+  });  
 }
+# Test info to get ONE companie info
 
-findCompany = function(code){
-  return (as.character(codeAndName[codeAndName$company.code == code,]$company.name))
-}
-          
-completaFunc = function(RPJ, RQT, RAPC, RPC, RRE, RPRV, RPOE, POCPE, RMA, SIZE, NIV) {
-  merge1 = merge(RPJ, RQT, all = TRUE);
-  merge2 = merge1;
-  merge3 = merge(merge2, RPC, all = TRUE);
-  merge4 = merge(merge3, RRE, all = TRUE);
-  merge5 = merge(merge4, RPRV, all = TRUE);
-  merge6 = merge(merge5, RPOE, all = TRUE);
-  #merge7 = merge6;
-  merge7 = merge(merge6, POCPE, all = TRUE);
-  merge8 = merge(merge7, RMA, all = TRUE);
-  merge9 = merge(merge8, SIZE, all = TRUE);
-  merge10 = merge(merge9, NIV, all = TRUE);
-  merge11 = merge(merge10, RAPC, all = TRUE);
-  completa = merge11;
-  
-  completa["AIAE1"] = completa$RQT - completa$RPJ;
-  
-  View(completa);
-  return(completa)
-  #["AIAE2"] = completa$RQT - completa10$RPJ;
-}
-
-completaFunc(RPJ, RQT, RAPC, RPC, RRE, RPRV, RPOE, POCPE, RMA, SIZE, NIV);
-
-
-
+#save(df.statements,file="statements.Rda")
 
 

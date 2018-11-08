@@ -18,7 +18,7 @@ getCompanyCode <- function(name, haslevels) {
     return (0);
   }
   
-  return (code[[1,1]]);
+  return (code$company.code[1]);
 }
 
 # P1 - Número de processos judiciais sofridos pela empresa
@@ -51,7 +51,8 @@ p1 <- function (dataInfo, filterNull) {
   
   resultFrame = data.frame(
     "Código" = codeVector, 
-    "Companhia" = companyVector, "Número Processos" = processVector, "Ano" = yearVector);
+    "Número Processos" = processVector, 
+    "Ano" = yearVector);
   if (filterNull) {
     resultFrame = filter(resultFrame, !Código == 0);  
   }

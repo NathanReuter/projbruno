@@ -6,13 +6,14 @@ rpjFunc <- function(dataInfo) {
   yearVector  = vector();
   rpjVector = vector();
   
+  
   for (year in years) {
     filtered = filter(sorted, Ano == year);
     numberR = nrow(filtered)
     if (numberR > 0) {
       for (index in 1:numberR) {
         codeVector <- c(codeVector, filtered$Código[index]);
-        yearVector <- c(yearVector, filtered$Ano[index]);
+        yearVector <- c(yearVector, years[index]);
         rpjValue <-  ((numberR - index)) / (numberR);
         rpjVector <- c(rpjVector, rpjValue);
       }
@@ -24,8 +25,9 @@ rpjFunc <- function(dataInfo) {
     "Ano" = yearVector,
     "RPJ" = rpjVector
   );
+  semiResultFrame["Número.Processos"] = dataInfo$Número.Processos
   
-  return (merge(dataInfo ,semiResultFrame, by=c("Código","Ano")))
+  return (semiResultFrame);
 }
 
 #Planilha 4: Ranking Q de Tobin Simplificado (RQT)
@@ -350,6 +352,39 @@ NIVFunc <- function(dataInfo) {
   
   return (resultFrame);
 };
+
+findCode = function (name) {
+  return (codeAndName[codeAndName$company.name == name,]$company.code)
+}
+
+findCompany = function(code){
+  return (as.character(codeAndName[codeAndName$company.code == code,]$company.name))
+}
+
+completaFunc = function(RPJ, RQT, RAPC, RPC, RRE, RPRV, RPOE, POCPE, RMA, SIZE, NIV) {
+  merge1 = merge(RPJ, RQT, all = TRUE);
+  merge2 = merge1;
+  merge3 = merge(merge2, RPC, all = TRUE);
+  merge4 = merge(merge3, RRE, all = TRUE);
+  merge5 = merge(merge4, RPRV, all = TRUE);
+  merge6 = merge(merge5, RPOE, all = TRUE);
+  #merge7 = merge6;
+  merge7 = merge(merge6, POCPE, all = TRUE);
+  merge8 = merge(merge7, RMA, all = TRUE);
+  merge9 = merge(merge8, SIZE, all = TRUE);
+  merge10 = merge(merge9, NIV, all = TRUE);
+  merge11 = merge(merge10, RAPC, all = TRUE);
+  completa = merge11;
+  
+  completa["AIAE1"] = completa$RQT - completa$RPJ;
+  
+  View(completa);
+  return(completa)
+  #["AIAE2"] = completa$RQT - completa10$RPJ;
+}
+
+#completa = completaFunc(RPJ, RQT, RAPC, RPC, RRE, RPRV, RPOE, POCPE, RMA, SIZE, NIV);
+
 
 
 # ROE problema
