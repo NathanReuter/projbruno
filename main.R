@@ -39,7 +39,7 @@ df.statements = data.frame();
 allCompanies = loadData("allCompanies");
 doneCompanies = loadData("doneCompanies");
 percent = length(doneCompanies)*100 / length(allCompanies);
-print(percent)
+print(percent) 
 for (company in setdiff(allCompanies, doneCompanies)) {
   try({
     name.companies <- company;
