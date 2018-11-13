@@ -7,6 +7,8 @@ source("newsheets.r");
 # Load GetDFP library
 library("GetDFPData");
 library("dplyr") 
+library(httr)
+set_config(config(ssl_verifypeer = 0L))
 
 # # Load needed csv
 brunoSheet = read_excel("resourceSheets/Bruno.xlsx");
@@ -34,24 +36,20 @@ codeAndName = read.csv("./codeAndName.csv");
 # RMA = loadData("RMA");
 # SIZE = loadData("SIZE");
 # NIV = loadData("NIV");
-
 df.statements = data.frame();
 allCompanies = loadData("allCompanies");
-doneCompanies = loadData("doneCompanies");
-percent = length(doneCompanies)*100 / length(allCompanies);
-print(percent) 
-for (company in setdiff(allCompanies, doneCompanies)) {
+for (company in allCompanies) {
+  name.companies <- company;
+  first.date <- '2010-01-01';
+  last.date <- '2017-01-01';
   try({
-    name.companies <- company;
-    #name.companies <- setdiff(name.companies, c("MARAMBAIA ENERGIA RENOVÁVEL SA"));
-    first.date <- '2010-01-01';
-    last.date <- '2017-01-01';
     statement <- gdfpd.GetDFPData(name.companies = name.companies,first.date = first.date);
-    df.statements <- c(df.statements, statement);
-    doneCompanies <- c(doneCompanies, company);
-    saveData(doneCompanies, "doneCompanies");
-  });  
+    df.statements <- rbind(df.statements, statement);  
+  })
 }
+
+
+
 # Test info to get ONE companie info
 
 #save(df.statements,file="statements.Rda")
