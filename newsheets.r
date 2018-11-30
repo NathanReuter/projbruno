@@ -233,8 +233,8 @@ POEFunc <- function(dataInfo) {
       filtered = filter(hs, name.stockholder %in% hb$person.name);
       if (nrow(filtered) > 0) {
         POE = round(as.numeric(filtered$perc.ord.shares) + as.numeric(filtered$perc.pref.shares), 2)
-        filtered["POE"] = POE;
         filtered["Código"] = cCode;
+        filtered["POE"] = POE;
         resultFrame = rbind(resultFrame, filtered[, c(1,2,15, 16)]);  
       }
       
